@@ -28,13 +28,13 @@ describe('NotificationCenter', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'Alerts' })).toBeInTheDocument()
-    expect(screen.getByText('Active violation')).toBeInTheDocument()
+    expect(screen.getByText('Violation')).toBeInTheDocument()
     expect(screen.getByText('HOS alert')).toBeInTheDocument()
     expect(screen.getByText('Needs verification')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'HOS 1' }))
     expect(screen.getByText('HOS alert')).toBeInTheDocument()
-    expect(screen.queryByText('Active violation')).not.toBeInTheDocument()
+    expect(screen.queryByText('Violation')).not.toBeInTheDocument()
     expect(screen.queryByText('Needs verification')).not.toBeInTheDocument()
   })
 
@@ -77,7 +77,7 @@ describe('NotificationCenter', () => {
     )
 
     await user.click(screen.getByRole('button', {
-      name: 'Dismiss active violation for Alex Rivera',
+      name: 'Dismiss violation for Alex Rivera',
     }))
     expect(screen.getByRole('dialog')).toHaveAccessibleName('Dismiss this violation?')
     await user.click(screen.getByRole('button', { name: 'Confirm dismissal' }))

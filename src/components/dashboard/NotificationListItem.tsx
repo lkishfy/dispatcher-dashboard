@@ -20,7 +20,7 @@ const kindStyles: Record<NotificationKind, {
   violation: {
     Icon: AlertOctagon,
     className: 'border-risk-critical-border bg-risk-critical-surface text-risk-critical',
-    label: 'Active violation',
+    label: 'Violation',
   },
   hos: {
     Icon: Clock3,

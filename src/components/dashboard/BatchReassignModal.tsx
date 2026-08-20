@@ -57,7 +57,7 @@ export function BatchReassignModal({
             <div className="flex items-center gap-2">
               <ArrowRightLeft aria-hidden="true" size={18} className="text-hex-muted" />
               <h2 id="batch-reassign-title" className="text-base font-semibold text-hex-ink">
-                Batch reassign
+                Reassign
               </h2>
             </div>
             <p id="batch-reassign-description" className="mt-1 text-xs text-hex-muted">

@@ -1,11 +1,12 @@
 import { canReassignLoad } from '../../domain/hos'
 import { SelectionCheckbox } from '../ui/SelectionCheckbox'
 import { DataFreshness } from './DataFreshness'
+import { DriverAlertBadge } from './DriverAlertBadge'
 import { DriverContactAction } from './DriverContactAction'
 import { DriverNudgeAction } from './DriverNudgeAction'
 import { DriverRiskStatus } from './DriverRiskStatus'
 import type { DriverRowProps } from './driverRowProps'
-import { severityLabels, severityStyles, statusLabels } from './display'
+import { statusLabels } from './display'
 import { hexAvatar } from './hexStyles'
 
 export function DriverMobileCard({
@@ -37,6 +38,7 @@ export function DriverMobileCard({
             <p className="mt-0.5 truncate text-xs text-hex-muted">
               {summary.truck.unitNumber} · {statusLabels[summary.driver.status]}
             </p>
+            <DriverAlertBadge summary={summary} />
           </div>
         </div>
         <SelectionCheckbox
@@ -56,15 +58,12 @@ export function DriverMobileCard({
           <div className="mt-1"><DataFreshness summary={summary} /></div>
         </div>
       </div>
-      <div className="mt-3 flex items-center justify-between gap-3">
+      <div className="mt-3">
         <p className="min-w-0 truncate text-xs text-hex-muted">
           {summary.route
             ? `${summary.route.loadLabel} · ${summary.remainingStops} stops left`
             : 'Unassigned'}
         </p>
-        <span className={`shrink-0 border px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.08em] ${severityStyles[summary.severity]}`}>
-          {severityLabels[summary.severity]}
-        </span>
       </div>
       <div className="mt-3 flex gap-2">
         <DriverNudgeAction

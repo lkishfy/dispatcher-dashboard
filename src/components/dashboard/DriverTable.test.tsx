@@ -5,6 +5,25 @@ import { createDriverSummary } from '../../test/factories'
 import { DriverTable } from './DriverTable'
 
 describe('DriverTable', () => {
+  it('shows violation and HOS alert badges in both responsive table views', () => {
+    render(
+      <DriverTable
+        summaries={[
+          createDriverSummary('a', 'Alex Rivera', -12),
+          createDriverSummary('b', 'Bea Stone', 60),
+        ]}
+        selectedIds={new Set()}
+        lockedDriverIds={new Set()}
+        onToggleSelect={vi.fn()}
+        onSetSelection={vi.fn()}
+        onOpenDriver={vi.fn()}
+      />,
+    )
+
+    expect(screen.getAllByText('Violation')).toHaveLength(2)
+    expect(screen.getAllByText('HOS alert')).toHaveLength(2)
+  })
+
   it('shares nudge state across mobile and desktop representations', async () => {
     const user = userEvent.setup()
     render(

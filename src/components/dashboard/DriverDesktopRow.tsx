@@ -2,6 +2,7 @@ import { TriangleAlert } from 'lucide-react'
 import { canReassignLoad } from '../../domain/hos'
 import { SelectionCheckbox } from '../ui/SelectionCheckbox'
 import { DataFreshness } from './DataFreshness'
+import { DriverAlertBadge } from './DriverAlertBadge'
 import { DriverContactAction } from './DriverContactAction'
 import { DriverNudgeAction } from './DriverNudgeAction'
 import { DriverRiskStatus } from './DriverRiskStatus'
@@ -45,6 +46,7 @@ export function DriverDesktopRow({
             <p className="mt-0.5 text-xs text-hex-muted">
               {summary.truck.unitNumber} · {summary.truck.type}
             </p>
+            <DriverAlertBadge summary={summary} />
           </div>
         </div>
       </td>

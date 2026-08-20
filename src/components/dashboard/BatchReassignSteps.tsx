@@ -12,14 +12,17 @@ function AssignmentRow({
     <li className={`rounded-lg border border-hex-border p-3 ${replacement ? 'bg-white' : 'bg-hex-bg/70'}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className={`truncate text-sm font-medium ${replacement ? 'text-hex-ink' : 'text-hex-muted'}`}>
-            {summary.route?.loadLabel} · {summary.driver.name}
+          <p className={`truncate text-sm font-semibold ${replacement ? 'text-hex-ink' : 'text-hex-muted'}`}>
+            Route {summary.route?.loadLabel}
           </p>
           <p className="mt-1 text-xs text-hex-muted">
-            {replacement
-              ? `Reassign to ${replacement.driver.name} · ${replacement.truck.unitNumber}`
-              : 'Current assignment will remain unchanged'}
+            Current driver: {summary.driver.name} · {summary.truck.unitNumber}
           </p>
+          {replacement && (
+            <p className="mt-0.5 text-xs font-medium text-hex-ink">
+              New driver: {replacement.driver.name} · {replacement.truck.unitNumber}
+            </p>
+          )}
         </div>
         {replacement ? (
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-hex-ink text-white">
@@ -51,12 +54,12 @@ export function BatchReassignReviewStep({
   return (
     <>
       <p className="text-sm text-hex-muted">
-        We paired each selected load with an eligible available driver where possible.
+        Review who will take each selected route before continuing.
       </p>
       {readySummaries.length > 0 && (
         <section aria-labelledby="ready-reassignments-heading" className="mt-5">
           <h3 id="ready-reassignments-heading" className="text-sm font-semibold text-hex-ink">
-            Ready to reassign
+            Proposed route assignments
           </h3>
           <ul className="mt-2 space-y-2">
             {readySummaries.map((summary) => (

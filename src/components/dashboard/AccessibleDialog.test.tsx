@@ -31,7 +31,7 @@ describe('AccessibleDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Open batch' }))
     screen.getByRole('dialog').dispatchEvent(new Event('close'))
 
-    expect(screen.getByRole('dialog')).toHaveAccessibleName('Batch reassign')
+    expect(screen.getByRole('dialog')).toHaveAccessibleName('Reassign')
   })
 
   it('closes through native cancel, restores focus, and has no axe violations', async () => {
@@ -41,7 +41,7 @@ describe('AccessibleDialog', () => {
     await user.click(trigger)
 
     const dialog = screen.getByRole('dialog')
-    expect(dialog).toHaveAccessibleName('Batch reassign')
+    expect(dialog).toHaveAccessibleName('Reassign')
     expect(document.body.style.overflow).toBe('hidden')
     expect((await axeCore.run(container, {
       rules: { 'color-contrast': { enabled: false } },
