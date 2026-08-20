@@ -1,10 +1,23 @@
-export type DutyStatus = 'driving' | 'on-duty' | 'on-break' | 'sleeper-berth' | 'off-duty'
+export const DUTY_STATUSES = [
+  'driving',
+  'on-duty',
+  'on-break',
+  'sleeper-berth',
+  'off-duty',
+] as const
 
-type DeliveryStatus = 'completed' | 'in-progress' | 'scheduled'
+export const DELIVERY_STATUSES = ['completed', 'in-progress', 'scheduled'] as const
+export const DELIVERY_PRIORITIES = ['standard', 'time-critical'] as const
+export const TRUCK_STATUSES = ['active', 'available', 'maintenance'] as const
+export const TRUCK_TYPES = ['Dry van', 'Reefer', 'Flatbed'] as const
 
-type TruckStatus = 'active' | 'available' | 'maintenance'
+export type DutyStatus = typeof DUTY_STATUSES[number]
+type DeliveryStatus = typeof DELIVERY_STATUSES[number]
+type DeliveryPriority = typeof DELIVERY_PRIORITIES[number]
+type TruckStatus = typeof TRUCK_STATUSES[number]
+type TruckType = typeof TRUCK_TYPES[number]
 
-export interface DutySegment {
+interface DutySegment {
   status: DutyStatus
   startTime: string
   durationMinutes: number
@@ -33,7 +46,7 @@ export interface Driver {
 export interface Truck {
   id: string
   unitNumber: string
-  type: 'Dry van' | 'Reefer' | 'Flatbed'
+  type: TruckType
   status: TruckStatus
 }
 
@@ -59,7 +72,7 @@ export interface Delivery {
   etaMinutes: number
   serviceMinutes: number
   cases: number
-  priority: 'standard' | 'time-critical'
+  priority: DeliveryPriority
 }
 
 export interface FleetData {

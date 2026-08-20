@@ -10,6 +10,7 @@ interface DriverTableProps {
   selectedIds: Set<string>
   lockedDriverIds: Set<string>
   onToggleSelect: (driverId: string) => void
+  onSetSelection: (driverIds: string[], selected: boolean) => void
   onOpenDriver: (driverId: string) => void
 }
 
@@ -18,6 +19,7 @@ export function DriverTable({
   selectedIds,
   lockedDriverIds,
   onToggleSelect,
+  onSetSelection,
   onOpenDriver,
 }: DriverTableProps) {
   const [nudgedDriverIds, setNudgedDriverIds] = useState<Set<string>>(
@@ -34,11 +36,10 @@ export function DriverTable({
   )
 
   const toggleAll = () => {
-    for (const summary of selectableSummaries) {
-      if (selectedIds.has(summary.driver.id) === allSelected) {
-        onToggleSelect(summary.driver.id)
-      }
-    }
+    onSetSelection(
+      selectableSummaries.map((summary) => summary.driver.id),
+      !allSelected,
+    )
   }
 
   return (

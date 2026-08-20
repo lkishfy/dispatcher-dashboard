@@ -4,14 +4,14 @@ import type { DriverSummary } from '../../domain/hos'
 interface DriverNudgeActionProps {
   summary: DriverSummary
   isNudged: boolean
-  isExpanded?: boolean
+  className?: string
   onRequestNudge: (summary: DriverSummary) => void
 }
 
 export function DriverNudgeAction({
   summary,
   isNudged,
-  isExpanded = false,
+  className = '',
   onRequestNudge,
 }: DriverNudgeActionProps) {
   return (
@@ -20,7 +20,7 @@ export function DriverNudgeAction({
       onClick={() => onRequestNudge(summary)}
       disabled={!summary.driver.telemetry.online || isNudged}
       title={summary.driver.telemetry.online ? undefined : 'Driver is offline'}
-      className={`hex-btn-secondary hex-btn-sm h-9 ${isExpanded ? 'flex-1' : ''}`}
+      className={`hex-btn-secondary hex-btn-sm h-9 ${className}`}
     >
       {isNudged
         ? <Check aria-hidden="true" size={14} />

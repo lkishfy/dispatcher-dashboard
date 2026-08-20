@@ -38,4 +38,18 @@ describe('reassignment workflow reducer', () => {
     expect(next.staged).toEqual({ b: 'replacement' })
     expect(next.selected).toEqual(new Set(['a']))
   })
+
+  it('updates a visible selection in one reducer transition', () => {
+    const selected = reassignmentReducer(
+      { selected: new Set(['existing']), staged: {}, confirmed: {} },
+      { type: 'set-selection', driverIds: ['a', 'b'], selected: true },
+    )
+    expect(selected.selected).toEqual(new Set(['existing', 'a', 'b']))
+
+    const cleared = reassignmentReducer(
+      selected,
+      { type: 'set-selection', driverIds: ['a', 'b'], selected: false },
+    )
+    expect(cleared.selected).toEqual(new Set(['existing']))
+  })
 })

@@ -1,12 +1,22 @@
-import type { Delivery, Driver, FleetData, Route, Truck } from '../types/fleet'
+import type {
+  Delivery,
+  Driver,
+  DutyStatus,
+  FleetData,
+  Route,
+  Truck,
+} from '../types/fleet'
 
 export const HOS_DRIVE_LIMIT_MINUTES = 11 * 60
 const HOS_WARNING_MINUTES = 90
 const HOS_CRITICAL_MINUTES = 30
 const STALE_DATA_MINUTES = 5
 
-export type HosSeverity = 'violation' | 'critical' | 'warning' | 'normal' | 'no-data'
-export type DataFreshness = 'live' | 'stale' | 'offline' | 'no-data'
+export const HOS_SEVERITIES = ['violation', 'critical', 'warning', 'normal', 'no-data'] as const
+export const DATA_FRESHNESS_STATES = ['live', 'stale', 'offline', 'no-data'] as const
+
+export type HosSeverity = typeof HOS_SEVERITIES[number]
+export type DataFreshness = typeof DATA_FRESHNESS_STATES[number]
 
 export interface DriverSummary {
   driver: Driver
@@ -20,6 +30,14 @@ export interface DriverSummary {
   projectedOverLimit: boolean
   remainingStops: number
   legalStopTime: string | null
+}
+
+export interface DutyTimelineEntry {
+  id: string
+  label: string
+  status: DutyStatus
+  durationMinutes: number
+  isCurrent: boolean
 }
 
 export function getDriveMinutesUsed(driver: Driver): number | null {
@@ -138,6 +156,58 @@ export function isViolation(summary: DriverSummary): boolean {
 
 export function canReassignLoad(summary: DriverSummary): boolean {
   return summary.route !== null
+}
+
+export function getRouteOverageMinutes(summary: DriverSummary): number | null {
+  if (
+    !summary.projectedOverLimit
+    || !summary.route
+    || summary.driveMinutesRemaining === null
+  ) {
+    return null
+  }
+  return summary.route.estimatedDriveMinutesRemaining - summary.driveMinutesRemaining
+}
+
+export function getDutyTotals(summary: DriverSummary): Record<DutyStatus, number> | null {
+  if (!summary.driver.dutyLog) return null
+
+  const totals: Record<DutyStatus, number> = {
+    driving: 0,
+    'on-duty': 0,
+    'on-break': 0,
+    'sleeper-berth': 0,
+    'off-duty': 0,
+  }
+  totals[summary.driver.status] = summary.driver.currentStatusMinutes
+
+  for (const segment of summary.driver.dutyLog) {
+    totals[segment.status] += segment.durationMinutes
+  }
+  return totals
+}
+
+export function buildDutyTimeline(summary: DriverSummary): DutyTimelineEntry[] | null {
+  if (!summary.driver.dutyLog) return null
+
+  const historical = summary.driver.dutyLog.map((segment) => ({
+    id: `${summary.driver.id}:${segment.status}:${segment.startTime}:${segment.durationMinutes}`,
+    label: segment.startTime,
+    status: segment.status,
+    durationMinutes: segment.durationMinutes,
+    isCurrent: false,
+  }))
+
+  return [
+    ...historical,
+    {
+      id: `${summary.driver.id}:current:${summary.driver.status}`,
+      label: 'Now',
+      status: summary.driver.status,
+      durationMinutes: summary.driver.currentStatusMinutes,
+      isCurrent: true,
+    },
+  ]
 }
 
 export function formatDuration(minutes: number | null): string {

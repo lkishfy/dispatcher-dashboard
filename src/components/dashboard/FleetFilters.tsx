@@ -1,5 +1,10 @@
-import type { DataFreshness, HosSeverity } from '../../domain/hos'
-import type { DutyStatus } from '../../types/fleet'
+import {
+  DATA_FRESHNESS_STATES,
+  HOS_SEVERITIES,
+  type DataFreshness,
+  type HosSeverity,
+} from '../../domain/hos'
+import { DUTY_STATUSES, type DutyStatus } from '../../types/fleet'
 import { freshnessLabels, severityLabels, statusLabels } from './display'
 import { HexSearchInput } from './HexSearchInput'
 import { HexSelect } from './HexSelect'
@@ -16,23 +21,19 @@ interface FleetFiltersProps {
   onFreshnessChange: (freshness: DataFreshness | 'all') => void
 }
 
-const dutyStatuses: DutyStatus[] = ['driving', 'on-duty', 'on-break', 'sleeper-berth', 'off-duty']
-const severities: HosSeverity[] = ['violation', 'critical', 'warning', 'normal', 'no-data']
-const freshnessStates: DataFreshness[] = ['live', 'stale', 'offline', 'no-data']
-
 const statusOptions: Array<{ value: DutyStatus | 'all'; label: string }> = [
   { value: 'all', label: 'All statuses' },
-  ...dutyStatuses.map((value) => ({ value, label: statusLabels[value] })),
+  ...DUTY_STATUSES.map((value) => ({ value, label: statusLabels[value] })),
 ]
 
 const severityOptions: Array<{ value: HosSeverity | 'all'; label: string }> = [
   { value: 'all', label: 'All HOS states' },
-  ...severities.map((value) => ({ value, label: severityLabels[value] })),
+  ...HOS_SEVERITIES.map((value) => ({ value, label: severityLabels[value] })),
 ]
 
 const freshnessOptions: Array<{ value: DataFreshness | 'all'; label: string }> = [
   { value: 'all', label: 'All connections' },
-  ...freshnessStates.map((value) => ({ value, label: freshnessLabels[value] })),
+  ...DATA_FRESHNESS_STATES.map((value) => ({ value, label: freshnessLabels[value] })),
 ]
 
 export function FleetFilters({

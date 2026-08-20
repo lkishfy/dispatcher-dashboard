@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
-import { sortByUrgency, type DataFreshness, type DriverSummary, type HosSeverity } from '../../domain/hos'
+import { RefreshCw } from 'lucide-react'
+import type { DataFreshness, DriverSummary, HosSeverity } from '../../domain/hos'
 import type { DutyStatus } from '../../types/fleet'
 import { formatCdtRefreshTime } from '../../utils/formatCdtTime'
 import { DriverTable } from './DriverTable'
-import { getDriverSearchSuggestions, matchesDriverSearch } from './driverSearch'
+import { DriverBoardPagination } from './DriverBoardPagination'
+import { filterDriverSummaries, getDriverSearchSuggestions } from './driverSearch'
 import { FleetFilters } from './FleetFilters'
 
 interface DriverBoardProps {
@@ -14,58 +15,13 @@ interface DriverBoardProps {
   lastRefreshedAt: Date
   isRefreshing: boolean
   onToggleSelect: (driverId: string) => void
+  onSetSelection: (driverIds: string[], selected: boolean) => void
   onBatchReassign: () => void
   onOpenDriver: (driverId: string) => void
   onRefresh: () => void
 }
 
 const PAGE_SIZE = 10
-
-function DriverBoardPagination({
-  page,
-  totalPages,
-  totalResults,
-  onPageChange,
-}: {
-  page: number
-  totalPages: number
-  totalResults: number
-  onPageChange: (page: number) => void
-}) {
-  const firstResult = (page - 1) * PAGE_SIZE + 1
-  const lastResult = Math.min(page * PAGE_SIZE, totalResults)
-
-  return (
-    <nav aria-label="Driver board pagination" className="flex flex-col gap-3 border-t border-hex-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-      <p className="text-xs text-hex-muted">
-        Showing {firstResult}–{lastResult} of {totalResults} drivers
-      </p>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page === 1}
-          className="hex-btn-secondary inline-flex h-9 items-center gap-1 px-3 text-xs disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <ChevronLeft aria-hidden="true" size={14} />
-          Previous
-        </button>
-        <span className="min-w-20 text-center text-xs tabular-nums text-hex-muted">
-          Page {page} of {totalPages}
-        </span>
-        <button
-          type="button"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page === totalPages}
-          className="hex-btn-secondary inline-flex h-9 items-center gap-1 px-3 text-xs disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Next
-          <ChevronRight aria-hidden="true" size={14} />
-        </button>
-      </div>
-    </nav>
-  )
-}
 
 export function DriverBoard({
   summaries,
@@ -74,6 +30,7 @@ export function DriverBoard({
   lastRefreshedAt,
   isRefreshing,
   onToggleSelect,
+  onSetSelection,
   onBatchReassign,
   onOpenDriver,
   onRefresh,
@@ -82,7 +39,7 @@ export function DriverBoard({
   const [status, setStatus] = useState<DutyStatus | 'all'>('all')
   const [severity, setSeverity] = useState<HosSeverity | 'all'>('all')
   const [freshness, setFreshness] = useState<DataFreshness | 'all'>('all')
-  const [pageAnchorId, setPageAnchorId] = useState<string | null>(null)
+  const [requestedPage, setRequestedPage] = useState(1)
 
   const searchSuggestions = useMemo(
     () => getDriverSearchSuggestions(summaries),
@@ -90,21 +47,11 @@ export function DriverBoard({
   )
 
   const filteredSummaries = useMemo(() => {
-    return sortByUrgency(summaries.filter((summary) => {
-      if (status !== 'all' && summary.driver.status !== status) return false
-      if (severity !== 'all' && summary.severity !== severity) return false
-      if (freshness !== 'all' && summary.freshness !== freshness) return false
-      return matchesDriverSearch(summary, search)
-    }))
+    return filterDriverSummaries(summaries, { search, status, severity, freshness })
   }, [freshness, search, severity, status, summaries])
   const totalPages = Math.max(1, Math.ceil(filteredSummaries.length / PAGE_SIZE))
-  const anchorIndex = pageAnchorId
-    ? filteredSummaries.findIndex((summary) => summary.driver.id === pageAnchorId)
-    : 0
-  const firstVisibleIndex = anchorIndex >= 0
-    ? Math.floor(anchorIndex / PAGE_SIZE) * PAGE_SIZE
-    : 0
-  const currentPage = Math.floor(firstVisibleIndex / PAGE_SIZE) + 1
+  const currentPage = Math.min(requestedPage, totalPages)
+  const firstVisibleIndex = (currentPage - 1) * PAGE_SIZE
   const visibleSummaries = filteredSummaries.slice(
     firstVisibleIndex,
     firstVisibleIndex + PAGE_SIZE,
@@ -151,28 +98,26 @@ export function DriverBoard({
         severity={severity}
         freshness={freshness}
         searchSuggestions={searchSuggestions}
-        onSearchChange={(value) => { setSearch(value); setPageAnchorId(null) }}
-        onStatusChange={(value) => { setStatus(value); setPageAnchorId(null) }}
-        onSeverityChange={(value) => { setSeverity(value); setPageAnchorId(null) }}
-        onFreshnessChange={(value) => { setFreshness(value); setPageAnchorId(null) }}
+        onSearchChange={(value) => { setSearch(value); setRequestedPage(1) }}
+        onStatusChange={(value) => { setStatus(value); setRequestedPage(1) }}
+        onSeverityChange={(value) => { setSeverity(value); setRequestedPage(1) }}
+        onFreshnessChange={(value) => { setFreshness(value); setRequestedPage(1) }}
       />
       <DriverTable
         summaries={visibleSummaries}
         selectedIds={selectedIds}
         lockedDriverIds={lockedDriverIds}
         onToggleSelect={onToggleSelect}
+        onSetSelection={onSetSelection}
         onOpenDriver={onOpenDriver}
       />
       {filteredSummaries.length > PAGE_SIZE && (
         <DriverBoardPagination
           page={currentPage}
+          pageSize={PAGE_SIZE}
           totalPages={totalPages}
           totalResults={filteredSummaries.length}
-          onPageChange={(nextPage) => {
-            setPageAnchorId(
-              filteredSummaries[(nextPage - 1) * PAGE_SIZE]?.driver.id ?? null,
-            )
-          }}
+          onPageChange={setRequestedPage}
         />
       )}
     </section>

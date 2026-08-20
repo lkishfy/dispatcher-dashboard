@@ -1,4 +1,4 @@
-import { useCallback, useReducer } from 'react'
+import { useReducer } from 'react'
 
 interface WorkflowState {
   selected: Set<string>
@@ -8,6 +8,7 @@ interface WorkflowState {
 
 type WorkflowAction =
   | { type: 'toggle'; driverId: string }
+  | { type: 'set-selection'; driverIds: string[]; selected: boolean }
   | { type: 'stage'; fromDriverId: string; toDriverId: string }
   | { type: 'stage-batch'; assignments: Record<string, string> }
   | { type: 'confirm'; fromDriverId: string }
@@ -39,6 +40,15 @@ export function reassignmentReducer(
     const selected = new Set(state.selected)
     if (selected.has(action.driverId)) selected.delete(action.driverId)
     else selected.add(action.driverId)
+    return { ...state, selected }
+  }
+  if (action.type === 'set-selection') {
+    const selected = new Set(state.selected)
+    for (const driverId of action.driverIds) {
+      if (state.staged[driverId] || state.confirmed[driverId]) continue
+      if (action.selected) selected.add(driverId)
+      else selected.delete(driverId)
+    }
     return { ...state, selected }
   }
   if (action.type === 'stage' || action.type === 'stage-batch') {
@@ -81,25 +91,29 @@ export function reassignmentReducer(
 
 export function useReassignmentWorkflow() {
   const [state, dispatch] = useReducer(reassignmentReducer, initialState)
-  const toggleSelection = useCallback((driverId: string) => {
+  const toggleSelection = (driverId: string) => {
     dispatch({ type: 'toggle', driverId })
-  }, [])
-  const stage = useCallback((fromDriverId: string, toDriverId: string) => {
+  }
+  const stage = (fromDriverId: string, toDriverId: string) => {
     dispatch({ type: 'stage', fromDriverId, toDriverId })
-  }, [])
-  const stageBatch = useCallback((assignments: Record<string, string>) => {
+  }
+  const setSelection = (driverIds: string[], selected: boolean) => {
+    dispatch({ type: 'set-selection', driverIds, selected })
+  }
+  const stageBatch = (assignments: Record<string, string>) => {
     dispatch({ type: 'stage-batch', assignments })
-  }, [])
-  const confirm = useCallback((fromDriverId: string) => {
+  }
+  const confirm = (fromDriverId: string) => {
     dispatch({ type: 'confirm', fromDriverId })
-  }, [])
-  const undo = useCallback((fromDriverId: string) => {
+  }
+  const undo = (fromDriverId: string) => {
     dispatch({ type: 'undo', fromDriverId })
-  }, [])
+  }
 
   return {
     ...state,
     toggleSelection,
+    setSelection,
     stage,
     stageBatch,
     confirm,

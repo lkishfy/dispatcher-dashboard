@@ -1,21 +1,12 @@
 import { TriangleAlert } from 'lucide-react'
-import { canReassignLoad, type DriverSummary } from '../../domain/hos'
+import { canReassignLoad } from '../../domain/hos'
 import { SelectionCheckbox } from '../ui/SelectionCheckbox'
 import { DataFreshness } from './DataFreshness'
 import { DriverContactAction } from './DriverContactAction'
 import { DriverNudgeAction } from './DriverNudgeAction'
 import { DriverRiskStatus } from './DriverRiskStatus'
+import type { DriverRowProps } from './driverRowProps'
 import { hexAvatar } from './hexStyles'
-
-interface DriverDesktopRowProps {
-  summary: DriverSummary
-  isSelected: boolean
-  isSelectionLocked: boolean
-  isNudged: boolean
-  onToggleSelect: (driverId: string) => void
-  onOpenDriver: (driverId: string) => void
-  onRequestNudge: (summary: DriverSummary) => void
-}
 
 export function DriverDesktopRow({
   summary,
@@ -25,7 +16,7 @@ export function DriverDesktopRow({
   onToggleSelect,
   onOpenDriver,
   onRequestNudge,
-}: DriverDesktopRowProps) {
+}: DriverRowProps) {
   const isSelectable = canReassignLoad(summary) && !isSelectionLocked
 
   return (

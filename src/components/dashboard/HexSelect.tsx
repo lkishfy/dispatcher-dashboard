@@ -1,5 +1,6 @@
 import { Check, ChevronDown } from 'lucide-react'
-import { useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react'
+import { useId, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react'
+import { useDismissOnOutsideClick } from '../../hooks/useDismissOnOutsideClick'
 
 interface HexSelectOption<T extends string = string> {
   value: T
@@ -26,22 +27,14 @@ export function HexSelect<T extends string>({
   const containerRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const listboxId = useId()
-  const selected = options.find((option) => option.value === value) ?? options[0]
-  const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value))
+  const selectedIndex = options.findIndex((option) => option.value === value)
+  const selected = options[selectedIndex]
+  if (!selected) throw new Error(`${ariaLabel} received an unknown value: ${value}`)
 
-  useEffect(() => {
-    if (!open) return
-
-    const handlePointerDown = (event: MouseEvent) => {
-      if (containerRef.current?.contains(event.target as Node)) return
-      setOpen(false)
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown)
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
-    }
-  }, [open])
+  useDismissOnOutsideClick(containerRef, open, () => {
+    setOpen(false)
+    setActiveIndex(-1)
+  })
 
   const selectOption = (nextValue: T) => {
     onChange(nextValue)

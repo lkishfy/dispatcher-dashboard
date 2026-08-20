@@ -1,25 +1,15 @@
-import {
-  AlertOctagon,
-  Bell,
-  Clock3,
-  TriangleAlert,
-  X,
-} from 'lucide-react'
-import { useState, type ReactNode } from 'react'
-import { getVerificationReason } from '../../domain/dashboardSelectors'
-import { formatDuration, type DriverSummary } from '../../domain/hos'
+import { Bell } from 'lucide-react'
+import { useMemo, useState, type ReactNode } from 'react'
+import type { DriverSummary } from '../../domain/hos'
 import { DismissViolationDialog } from './DismissViolationDialog'
-import { DriverContactAction } from './DriverContactAction'
-import { getViolationSummary } from './alertDisplay'
-
-type NotificationKind = 'violation' | 'hos' | 'verification'
-type NotificationFilter = 'all' | NotificationKind
-
-interface NotificationItem {
-  id: string
-  kind: NotificationKind
-  summary: DriverSummary
-}
+import {
+  NotificationFilterBar,
+  type NotificationFilter,
+} from './NotificationFilterBar'
+import {
+  NotificationListItem,
+  type NotificationItem,
+} from './NotificationListItem'
 
 export interface NotificationCenterProps {
   violations: DriverSummary[]
@@ -34,51 +24,6 @@ export interface NotificationCenterProps {
 
 const INITIAL_VISIBLE_COUNT = 6
 
-const kindStyles: Record<NotificationKind, {
-  icon: ReactNode
-  iconClassName: string
-  label: string
-  badgeClassName: string
-}> = {
-  violation: {
-    icon: <AlertOctagon aria-hidden="true" size={15} />,
-    iconClassName: 'border-risk-critical-border bg-risk-critical-surface text-risk-critical',
-    label: 'Active violation',
-    badgeClassName: 'border-risk-critical-border bg-risk-critical-surface text-risk-critical',
-  },
-  hos: {
-    icon: <Clock3 aria-hidden="true" size={15} />,
-    iconClassName: 'border-warning-border bg-warning-surface text-warning-text',
-    label: 'HOS alert',
-    badgeClassName: 'border-warning-border bg-warning-surface text-warning-text',
-  },
-  verification: {
-    icon: <TriangleAlert aria-hidden="true" size={15} />,
-    iconClassName: 'border-hex-border bg-hex-bg text-hex-muted',
-    label: 'Needs verification',
-    badgeClassName: 'border-hex-border bg-hex-bg text-hex-muted',
-  },
-}
-
-function getNotificationDetail(item: NotificationItem): string {
-  const { kind, summary } = item
-  if (kind === 'violation') {
-    return [
-      getViolationSummary(summary),
-      summary.route?.loadLabel,
-      summary.remainingStops > 0 ? `${summary.remainingStops} stops remaining` : null,
-    ].filter(Boolean).join(' · ')
-  }
-  if (kind === 'hos') {
-    return [
-      `${formatDuration(summary.driveMinutesRemaining)} until 11-hour limit`,
-      'Reset due at limit',
-      summary.route?.loadLabel,
-    ].filter(Boolean).join(' · ')
-  }
-  return getVerificationReason(summary)
-}
-
 export function NotificationCenter({
   violations,
   hosAlerts,
@@ -90,9 +35,9 @@ export function NotificationCenter({
   className = '',
 }: NotificationCenterProps) {
   const [filter, setFilter] = useState<NotificationFilter>('all')
-  const [showAll, setShowAll] = useState(false)
+  const [view, setView] = useState<'preview' | 'full'>('preview')
   const [pendingDismissal, setPendingDismissal] = useState<DriverSummary | null>(null)
-  const notifications: NotificationItem[] = [
+  const notifications = useMemo<NotificationItem[]>(() => [
     ...violations.map((summary) => ({
       id: `violation:${summary.driver.id}`,
       kind: 'violation' as const,
@@ -108,7 +53,7 @@ export function NotificationCenter({
       kind: 'verification' as const,
       summary,
     })),
-  ]
+  ], [hosAlerts, verificationDrivers, violations])
 
   if (notifications.length === 0) return null
 
@@ -121,16 +66,10 @@ export function NotificationCenter({
   const filteredNotifications = filter === 'all'
     ? notifications
     : notifications.filter((notification) => notification.kind === filter)
-  const visibleNotifications = showAll
+  const visibleNotifications = view === 'full'
     ? filteredNotifications
     : filteredNotifications.slice(0, INITIAL_VISIBLE_COUNT)
   const hiddenCount = filteredNotifications.length - visibleNotifications.length
-  const filters: Array<{ value: NotificationFilter; label: string }> = [
-    { value: 'all', label: 'All' },
-    { value: 'violation', label: 'Critical' },
-    { value: 'hos', label: 'HOS' },
-    { value: 'verification', label: 'Verify' },
-  ]
 
   return (
     <>
@@ -157,96 +96,47 @@ export function NotificationCenter({
           </div>
             {headerAction}
           </div>
-          <div role="group" aria-label="Filter alerts" className="mt-4 grid grid-cols-4 border border-hex-border bg-hex-bg">
-              {filters.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  aria-pressed={filter === option.value}
-                  onClick={() => {
-                    setFilter(option.value)
-                    setShowAll(false)
-                  }}
-                  className={`min-h-9 border-r border-hex-border px-2 text-xs font-medium transition-colors last:border-r-0 ${
-                    filter === option.value
-                      ? 'bg-white text-hex-ink'
-                      : 'text-hex-muted hover:text-hex-ink'
-                  }`}
-                >
-                  {option.label} <span className="tabular-nums">{counts[option.value]}</span>
-                </button>
-              ))}
-          </div>
+          <NotificationFilterBar
+            selectedFilter={filter}
+            counts={counts}
+            onChange={(nextFilter) => {
+              setFilter(nextFilter)
+              setView('preview')
+            }}
+          />
         </header>
 
-        <ul className="divide-y divide-hex-border">
-          {visibleNotifications.map((item) => {
-            const { summary } = item
-            const style = kindStyles[item.kind]
-
-            return (
-              <li key={item.id} className="px-4 py-3 sm:px-5">
-                <div className="flex items-start gap-3">
-                  <span className={`mt-0.5 grid size-8 shrink-0 place-items-center border ${style.iconClassName}`}>
-                    {style.icon}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() => onOpenDriver(summary.driver.id)}
-                        className="text-left text-sm font-semibold text-hex-ink hover:underline"
-                      >
-                        {summary.driver.name}
-                      </button>
-                      <span className={`mt-1 block w-fit border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] ${style.badgeClassName}`}>
-                        {style.label}
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-xs leading-relaxed text-hex-muted">
-                      {getNotificationDetail(item)}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <DriverContactAction summary={summary} compact />
-                      {item.kind !== 'verification' && (
-                        <button
-                          type="button"
-                          onClick={() => onOpenDriver(summary.driver.id)}
-                          disabled={!summary.route}
-                          className="hex-btn-secondary hex-btn-sm min-w-20"
-                        >
-                          Reassign
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  {(item.kind === 'violation' || item.kind === 'verification') && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (item.kind === 'violation') setPendingDismissal(summary)
-                        else onDismissVerification(summary.driver.id)
-                      }}
-                      aria-label={`Dismiss ${style.label.toLowerCase()} for ${summary.driver.name}`}
-                      className="grid size-8 shrink-0 place-items-center text-hex-muted hover:bg-hex-bg hover:text-hex-ink"
-                    >
-                      <X aria-hidden="true" size={14} />
-                    </button>
-                  )}
-                </div>
-              </li>
-            )
-          })}
-        </ul>
+        {visibleNotifications.length === 0 ? (
+          <p className="px-5 py-10 text-center text-sm text-hex-muted">
+            No alerts in this category.
+          </p>
+        ) : (
+          <ul className="divide-y divide-hex-border">
+            {visibleNotifications.map((item) => (
+              <NotificationListItem
+                key={item.id}
+                item={item}
+                onOpenDriver={onOpenDriver}
+                onDismiss={(dismissedItem) => {
+                  if (dismissedItem.kind === 'violation') {
+                    setPendingDismissal(dismissedItem.summary)
+                  } else {
+                    onDismissVerification(dismissedItem.summary.driver.id)
+                  }
+                }}
+              />
+            ))}
+          </ul>
+        )}
 
         {filteredNotifications.length > INITIAL_VISIBLE_COUNT && (
           <footer className="border-t border-hex-border px-4 py-3 text-center sm:px-5">
             <button
               type="button"
-              onClick={() => setShowAll((current) => !current)}
+              onClick={() => setView((current) => current === 'full' ? 'preview' : 'full')}
               className="text-xs font-semibold text-hex-ink hover:underline"
             >
-              {showAll
+              {view === 'full'
                 ? 'Show fewer alerts'
                 : `Show ${hiddenCount} more alert${hiddenCount === 1 ? '' : 's'}`}
             </button>

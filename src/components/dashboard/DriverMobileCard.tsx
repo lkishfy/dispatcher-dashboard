@@ -1,22 +1,12 @@
-import type { DriverSummary } from '../../domain/hos'
 import { canReassignLoad } from '../../domain/hos'
 import { SelectionCheckbox } from '../ui/SelectionCheckbox'
 import { DataFreshness } from './DataFreshness'
 import { DriverContactAction } from './DriverContactAction'
 import { DriverNudgeAction } from './DriverNudgeAction'
 import { DriverRiskStatus } from './DriverRiskStatus'
+import type { DriverRowProps } from './driverRowProps'
 import { severityLabels, severityStyles, statusLabels } from './display'
 import { hexAvatar } from './hexStyles'
-
-interface DriverMobileCardProps {
-  summary: DriverSummary
-  isSelected: boolean
-  isSelectionLocked: boolean
-  isNudged: boolean
-  onToggleSelect: (driverId: string) => void
-  onOpenDriver: (driverId: string) => void
-  onRequestNudge: (summary: DriverSummary) => void
-}
 
 export function DriverMobileCard({
   summary,
@@ -26,7 +16,7 @@ export function DriverMobileCard({
   onToggleSelect,
   onOpenDriver,
   onRequestNudge,
-}: DriverMobileCardProps) {
+}: DriverRowProps) {
   const isSelectable = canReassignLoad(summary) && !isSelectionLocked
 
   return (
@@ -80,10 +70,10 @@ export function DriverMobileCard({
         <DriverNudgeAction
           summary={summary}
           isNudged={isNudged}
-          isExpanded
+          className="flex-1"
           onRequestNudge={onRequestNudge}
         />
-        <DriverContactAction summary={summary} isExpanded />
+        <DriverContactAction summary={summary} className="flex-1" />
       </div>
     </article>
   )

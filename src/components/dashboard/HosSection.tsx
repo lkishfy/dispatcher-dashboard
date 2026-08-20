@@ -1,10 +1,11 @@
 import { Clock3 } from 'lucide-react'
 import {
   HOS_DRIVE_LIMIT_MINUTES,
+  buildDutyTimeline,
   formatDuration,
+  getDutyTotals,
   type DriverSummary,
 } from '../../domain/hos'
-import { getDutyTimelineEntryId } from '../../domain/timelineIdentity'
 import type { DutyStatus } from '../../types/fleet'
 import { statusLabels } from './display'
 
@@ -21,39 +22,8 @@ interface HosSectionProps {
 }
 
 export function HosSection({ summary }: HosSectionProps) {
-  const dutyTotals = summary.driver.dutyLog?.reduce<Record<DutyStatus, number>>(
-    (totals, segment) => {
-      totals[segment.status] += segment.durationMinutes
-      return totals
-    },
-    {
-      driving: summary.driver.status === 'driving'
-        ? summary.driver.currentStatusMinutes
-        : 0,
-      'on-duty': summary.driver.status === 'on-duty'
-        ? summary.driver.currentStatusMinutes
-        : 0,
-      'on-break': summary.driver.status === 'on-break'
-        ? summary.driver.currentStatusMinutes
-        : 0,
-      'sleeper-berth': summary.driver.status === 'sleeper-berth'
-        ? summary.driver.currentStatusMinutes
-        : 0,
-      'off-duty': summary.driver.status === 'off-duty'
-        ? summary.driver.currentStatusMinutes
-        : 0,
-    },
-  )
-  const timeline = summary.driver.dutyLog
-    ? [
-        ...summary.driver.dutyLog,
-        {
-          status: summary.driver.status,
-          startTime: 'Now',
-          durationMinutes: summary.driver.currentStatusMinutes,
-        },
-      ]
-    : null
+  const dutyTotals = getDutyTotals(summary)
+  const timeline = buildDutyTimeline(summary)
 
   return (
     <section className="hex-card p-4 sm:p-5">
@@ -88,11 +58,11 @@ export function HosSection({ summary }: HosSectionProps) {
         <div className="mt-5 space-y-3">
           {timeline.map((segment) => (
             <div
-              key={getDutyTimelineEntryId(summary.driver.id, segment)}
+              key={segment.id}
               className="grid grid-cols-[44px_70px_1fr_48px] items-center gap-1.5 text-[11px] sm:grid-cols-[54px_88px_1fr_55px] sm:gap-2 sm:text-xs"
             >
-              <span className={`font-medium tabular-nums ${segment.startTime === 'Now' ? 'text-hex-ink' : 'text-hex-muted'}`}>
-                {segment.startTime}
+              <span className={`font-medium tabular-nums ${segment.isCurrent ? 'text-hex-ink' : 'text-hex-muted'}`}>
+                {segment.label}
               </span>
               <span className="font-semibold text-hex-ink">
                 {statusLabels[segment.status]}

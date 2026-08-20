@@ -4,14 +4,14 @@ import { getDriverTelHref } from '../../utils/driverContact'
 
 interface DriverContactActionProps {
   summary: DriverSummary
-  isExpanded?: boolean
-  compact?: boolean
+  size?: 'compact' | 'default'
+  className?: string
 }
 
 export function DriverContactAction({
   summary,
-  isExpanded = false,
-  compact = false,
+  size = 'default',
+  className = '',
 }: DriverContactActionProps) {
   const buttonStyle = summary.severity === 'violation'
     ? 'hex-btn-critical'
@@ -20,7 +20,7 @@ export function DriverContactAction({
   return (
     <a
       href={getDriverTelHref(summary.driver.id)}
-      className={`${buttonStyle} hex-btn-sm ${compact ? 'min-w-20' : 'h-9'} ${isExpanded ? 'flex-1' : ''}`}
+      className={`${buttonStyle} hex-btn-sm ${size === 'compact' ? '' : 'h-9'} ${className}`}
       aria-label={`Call ${summary.driver.name}`}
     >
       <Phone aria-hidden="true" size={14} />

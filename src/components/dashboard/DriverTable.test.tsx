@@ -13,6 +13,7 @@ describe('DriverTable', () => {
         selectedIds={new Set()}
         lockedDriverIds={new Set()}
         onToggleSelect={vi.fn()}
+        onSetSelection={vi.fn()}
         onOpenDriver={vi.fn()}
       />,
     )
@@ -32,7 +33,7 @@ describe('DriverTable', () => {
 
   it('selects every visible eligible load in batch mode', async () => {
     const user = userEvent.setup()
-    const onToggleSelect = vi.fn()
+    const onSetSelection = vi.fn()
     render(
       <DriverTable
         summaries={[
@@ -41,7 +42,8 @@ describe('DriverTable', () => {
         ]}
         selectedIds={new Set()}
         lockedDriverIds={new Set()}
-        onToggleSelect={onToggleSelect}
+        onToggleSelect={vi.fn()}
+        onSetSelection={onSetSelection}
         onOpenDriver={vi.fn()}
       />,
     )
@@ -50,7 +52,7 @@ describe('DriverTable', () => {
       name: 'Select all visible loads for batch reassignment',
     }))
 
-    expect(onToggleSelect).toHaveBeenCalledTimes(1)
-    expect(onToggleSelect).toHaveBeenCalledWith('a')
+    expect(onSetSelection).toHaveBeenCalledTimes(1)
+    expect(onSetSelection).toHaveBeenCalledWith(['a'], true)
   })
 })

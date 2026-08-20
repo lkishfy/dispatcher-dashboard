@@ -56,11 +56,12 @@ export function AccessibleDialog({
       if (dialog.open) dialog.close()
       document.body.style.overflow = previousOverflow
       triggerRef.current?.focus()
+      triggerRef.current = null
     }
   }, [])
 
   const handleBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {
-    if (event.target === event.currentTarget) onClose()
+    if (event.target === event.currentTarget) onCloseRef.current()
   }
 
   return (

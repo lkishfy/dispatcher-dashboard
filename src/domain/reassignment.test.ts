@@ -10,10 +10,15 @@ function makeSummary(
   distance: number,
 ): DriverSummary {
   const summary = createDriverSummary(id, id, 360, available)
-  summary.severity = severity
-  summary.projectedOverLimit = false
-  summary.driver.distanceFromHubMiles = distance
-  return summary
+  return {
+    ...summary,
+    severity,
+    projectedOverLimit: false,
+    driver: {
+      ...summary.driver,
+      distanceFromHubMiles: distance,
+    },
+  }
 }
 
 describe('buildBatchReassignments', () => {
@@ -49,23 +54,41 @@ describe('buildBatchReassignments', () => {
 
 describe('getReassignmentCandidates', () => {
   it('derives load-specific options from equipment, route location, and HOS capacity', () => {
-    const load = makeSummary('load', 'critical', false, 0)
-    load.route!.destination = 'Madison, WI'
-    load.route!.estimatedDriveMinutesRemaining = 120
+    const loadBase = makeSummary('load', 'critical', false, 0)
+    if (!loadBase.route) throw new Error('Expected a routed load fixture')
+    const load = {
+      ...loadBase,
+      route: {
+        ...loadBase.route,
+        destination: 'Madison, WI',
+        estimatedDriveMinutesRemaining: 120,
+      },
+    }
 
-    const local = makeSummary('local', 'normal', true, 12)
-    local.driver.location = 'Madison, WI'
-    local.driveMinutesRemaining = 300
+    const localBase = makeSummary('local', 'normal', true, 12)
+    const local = {
+      ...localBase,
+      driver: { ...localBase.driver, location: 'Madison, WI' },
+      driveMinutesRemaining: 300,
+    }
 
-    const nearerHub = makeSummary('nearer-hub', 'normal', true, 5)
-    nearerHub.driver.location = 'Chicago, IL'
-    nearerHub.driveMinutesRemaining = 300
+    const nearerHubBase = makeSummary('nearer-hub', 'normal', true, 5)
+    const nearerHub = {
+      ...nearerHubBase,
+      driver: { ...nearerHubBase.driver, location: 'Chicago, IL' },
+      driveMinutesRemaining: 300,
+    }
 
-    const wrongEquipment = makeSummary('wrong-equipment', 'normal', true, 2)
-    wrongEquipment.truck.type = 'Reefer'
+    const wrongEquipmentBase = makeSummary('wrong-equipment', 'normal', true, 2)
+    const wrongEquipment = {
+      ...wrongEquipmentBase,
+      truck: { ...wrongEquipmentBase.truck, type: 'Reefer' as const },
+    }
 
-    const insufficientHos = makeSummary('insufficient-hos', 'normal', true, 1)
-    insufficientHos.driveMinutesRemaining = 100
+    const insufficientHos = {
+      ...makeSummary('insufficient-hos', 'normal', true, 1),
+      driveMinutesRemaining: 100,
+    }
 
     const candidates = getReassignmentCandidates(
       load,

@@ -1,4 +1,4 @@
-import type { DriverSummary } from '../domain/hos'
+import { getHosSeverity, type DriverSummary } from '../domain/hos'
 import type { Driver } from '../types/fleet'
 
 const baseDriver: Driver = {
@@ -22,6 +22,7 @@ export function createDriverSummary(
   remaining: number,
   available = false,
 ): DriverSummary {
+  const estimatedDriveMinutesRemaining = available ? 0 : 100
   return {
     driver: {
       ...baseDriver,
@@ -47,14 +48,14 @@ export function createDriverSummary(
           deliveryIds: ['stop'],
           completedStops: 0,
           projectedMinutesRemaining: 90,
-          estimatedDriveMinutesRemaining: 100,
+          estimatedDriveMinutesRemaining,
         },
     currentDelivery: null,
     driveMinutesUsed: 660 - remaining,
     driveMinutesRemaining: remaining,
-    severity: remaining < 30 ? 'critical' : available ? 'normal' : 'warning',
+    severity: getHosSeverity(remaining, estimatedDriveMinutesRemaining),
     freshness: 'live',
-    projectedOverLimit: !available,
+    projectedOverLimit: estimatedDriveMinutesRemaining > remaining,
     remainingStops: 1,
     legalStopTime: null,
   }

@@ -1,5 +1,9 @@
 import { CloudOff } from 'lucide-react'
-import { formatDuration, type DriverSummary } from '../../domain/hos'
+import {
+  formatDuration,
+  getRouteOverageMinutes,
+  type DriverSummary,
+} from '../../domain/hos'
 import { severityDotStyles, severityLabels, statusLabels } from './display'
 
 interface DriverRiskStatusProps {
@@ -16,9 +20,7 @@ export function DriverRiskStatus({ summary }: DriverRiskStatusProps) {
     )
   }
 
-  const routeGap = summary.projectedOverLimit && summary.route
-    ? summary.route.estimatedDriveMinutesRemaining - summary.driveMinutesRemaining
-    : null
+  const routeGap = getRouteOverageMinutes(summary)
 
   return (
     <div className="min-w-0">

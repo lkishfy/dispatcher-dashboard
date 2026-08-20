@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react'
-import { useEffect, useId, useMemo, useRef, useState, type FocusEvent } from 'react'
+import { useId, useMemo, useRef, useState, type FocusEvent } from 'react'
+import { useDismissOnOutsideClick } from '../../hooks/useDismissOnOutsideClick'
 
 interface HexSearchInputProps {
   value: string
@@ -39,18 +40,12 @@ export function HexSearchInput({
       .slice(0, 6)
   }, [normalizedValue, suggestions])
 
-  useEffect(() => {
-    if (!open) return
-
-    const handlePointerDown = (event: MouseEvent) => {
-      if (containerRef.current?.contains(event.target as Node)) return
-      setOpen(false)
-      setActiveIndex(-1)
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown)
-    return () => document.removeEventListener('pointerdown', handlePointerDown)
-  }, [open])
+  const closeSuggestions = () => {
+    setOpen(false)
+    setActiveIndex(-1)
+  }
+  useDismissOnOutsideClick(containerRef, open, closeSuggestions)
+  const visibleActiveIndex = activeIndex < matches.length ? activeIndex : -1
 
   const selectSuggestion = (suggestion: string) => {
     onChange(suggestion)
@@ -81,7 +76,7 @@ export function HexSearchInput({
         aria-autocomplete="list"
         aria-expanded={open && matches.length > 0}
         aria-controls={listboxId}
-        aria-activedescendant={activeIndex >= 0 ? `${listboxId}-${activeIndex}` : undefined}
+        aria-activedescendant={visibleActiveIndex >= 0 ? `${listboxId}-${visibleActiveIndex}` : undefined}
         autoComplete="off"
         onFocus={() => setOpen(matches.length > 0)}
         onChange={(event) => {
@@ -104,9 +99,9 @@ export function HexSearchInput({
           } else if (event.key === 'End' && open && matches.length > 0) {
             event.preventDefault()
             setActiveIndex(matches.length - 1)
-          } else if (event.key === 'Enter' && open && activeIndex >= 0) {
+          } else if (event.key === 'Enter' && open && visibleActiveIndex >= 0) {
             event.preventDefault()
-            selectSuggestion(matches[activeIndex])
+            selectSuggestion(matches[visibleActiveIndex])
           } else if (event.key === 'Escape') {
             setOpen(false)
             setActiveIndex(-1)
@@ -128,12 +123,12 @@ export function HexSearchInput({
               key={suggestion}
               id={`${listboxId}-${index}`}
               role="option"
-              aria-selected={activeIndex === index}
+              aria-selected={visibleActiveIndex === index}
               onPointerDown={(event) => event.preventDefault()}
               onClick={() => selectSuggestion(suggestion)}
               onPointerMove={() => setActiveIndex(index)}
               className={`cursor-pointer truncate px-3 py-2 text-left text-sm ${
-                activeIndex === index
+                visibleActiveIndex === index
                   ? 'bg-hex-bg text-hex-ink'
                   : 'text-hex-ink/90 hover:bg-hex-bg'
               }`}
