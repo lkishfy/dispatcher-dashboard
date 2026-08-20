@@ -1,8 +1,8 @@
 export type DutyStatus = 'driving' | 'on-duty' | 'on-break' | 'sleeper-berth' | 'off-duty'
 
-export type DeliveryStatus = 'completed' | 'in-progress' | 'scheduled'
+type DeliveryStatus = 'completed' | 'in-progress' | 'scheduled'
 
-export type TruckStatus = 'active' | 'available' | 'maintenance'
+type TruckStatus = 'active' | 'available' | 'maintenance'
 
 export interface DutySegment {
   status: DutyStatus
@@ -10,7 +10,7 @@ export interface DutySegment {
   durationMinutes: number
 }
 
-export interface DriverTelemetry {
+interface DriverTelemetry {
   online: boolean
   lastUpdatedMinutesAgo: number | null
 }

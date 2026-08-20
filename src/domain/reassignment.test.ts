@@ -1,22 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { createDriverSummary } from '../test/factories'
 import { buildBatchReassignments, getReassignmentCandidates } from './reassignment'
 import type { DriverSummary } from './hos'
-import type { Driver } from '../types/fleet'
-
-const baseDriver: Driver = {
-  id: 'driver-base',
-  name: 'Base Driver',
-  initials: 'BD',
-  truckId: 'truck-base',
-  routeId: 'route-base',
-  status: 'driving',
-  currentStatusMinutes: 10,
-  location: 'Chicago, IL',
-  dutyLog: [],
-  telemetry: { online: true, lastUpdatedMinutesAgo: 1 },
-  availableForReassignment: false,
-  distanceFromHubMiles: 10,
-}
 
 function makeSummary(
   id: string,
@@ -24,40 +9,11 @@ function makeSummary(
   available: boolean,
   distance: number,
 ): DriverSummary {
-  return {
-    driver: {
-      ...baseDriver,
-      id,
-      name: id,
-      availableForReassignment: available,
-      distanceFromHubMiles: distance,
-    },
-    truck: {
-      id: `truck-${id}`,
-      unitNumber: `T-${id}`,
-      type: 'Dry van',
-      status: available ? 'available' : 'active',
-    },
-    route: available ? null : {
-      id: `route-${id}`,
-      driverId: id,
-      origin: 'Hub',
-      destination: 'City',
-      loadLabel: `LD-${id}`,
-      deliveryIds: ['d1'],
-      completedStops: 0,
-      projectedMinutesRemaining: 60,
-      estimatedDriveMinutesRemaining: 40,
-    },
-    currentDelivery: null,
-    driveMinutesUsed: 300,
-    driveMinutesRemaining: 360,
-    severity,
-    freshness: 'live',
-    projectedOverLimit: false,
-    remainingStops: 1,
-    legalStopTime: null,
-  }
+  const summary = createDriverSummary(id, id, 360, available)
+  summary.severity = severity
+  summary.projectedOverLimit = false
+  summary.driver.distanceFromHubMiles = distance
+  return summary
 }
 
 describe('buildBatchReassignments', () => {

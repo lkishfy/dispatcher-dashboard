@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "typecheck": "tsc -b --pretty false",
+    "generate:fleet": "node scripts/generate-fleet-data.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -31,7 +32,6 @@
     "oxlint": "^1.75.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
-    "vitest": "^4.1.11",
-    "vitest-axe": "^0.1.0"
+    "vitest": "^4.1.11"
   }
 }

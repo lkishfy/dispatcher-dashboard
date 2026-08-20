@@ -24,7 +24,6 @@ describe('NotificationCenter', () => {
         onDismissViolation={vi.fn()}
         onDismissVerification={vi.fn()}
         onOpenDriver={vi.fn()}
-        onReassign={vi.fn()}
       />,
     )
 
@@ -42,7 +41,6 @@ describe('NotificationCenter', () => {
   it('supports HOS drill-in, calling, and reassignment', async () => {
     const user = userEvent.setup()
     const onOpenDriver = vi.fn()
-    const onReassign = vi.fn()
     render(
       <NotificationCenter
         violations={[]}
@@ -51,7 +49,6 @@ describe('NotificationCenter', () => {
         onDismissViolation={vi.fn()}
         onDismissVerification={vi.fn()}
         onOpenDriver={onOpenDriver}
-        onReassign={onReassign}
       />,
     )
 
@@ -61,7 +58,8 @@ describe('NotificationCenter', () => {
     expect(screen.getByRole('link', { name: 'Call Alex Rivera' }))
       .toHaveAttribute('href', 'tel:3125551001')
     await user.click(screen.getByRole('button', { name: 'Reassign' }))
-    expect(onReassign).toHaveBeenCalledWith('a')
+    expect(onOpenDriver).toHaveBeenCalledTimes(2)
+    expect(onOpenDriver).toHaveBeenLastCalledWith('a')
   })
 
   it('confirms before dismissing a violation', async () => {
@@ -75,7 +73,6 @@ describe('NotificationCenter', () => {
         onDismissViolation={onDismissViolation}
         onDismissVerification={vi.fn()}
         onOpenDriver={vi.fn()}
-        onReassign={vi.fn()}
       />,
     )
 
@@ -102,7 +99,6 @@ describe('NotificationCenter', () => {
         onDismissViolation={vi.fn()}
         onDismissVerification={onDismissVerification}
         onOpenDriver={vi.fn()}
-        onReassign={vi.fn()}
       />,
     )
 

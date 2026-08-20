@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { formatCdtRefreshTime } from '../../utils/formatCdtTime'
 import {
   getDriverPhone,
+  getDriverTelHref,
   violationStopPingMessage,
   type ContactActionStatus,
 } from '../../utils/driverContact'
@@ -11,7 +12,6 @@ interface DriverContactActionsProps {
   driverId: string
   driverName: string
   online: boolean
-  variant?: 'banner' | 'compact'
 }
 
 function statusMessage(action: ContactActionStatus, driverName: string, phone: string): string {
@@ -19,20 +19,17 @@ function statusMessage(action: ContactActionStatus, driverName: string, phone: s
 
   if (action.type === 'call') {
     if (action.phase === 'pending') return `Calling ${phone}…`
-    if (action.phase === 'connected') return `Connected to ${driverName} · ${time}`
-    return `Could not reach ${driverName} · ${time}`
+    return `Connected to ${driverName} · ${time}`
   }
 
   if (action.phase === 'pending') return `Sending in-cab alert to ${driverName}…`
-  if (action.phase === 'delivered') return `In-cab alert delivered · ${time}`
-  return `In-cab alert failed — driver may be offline · ${time}`
+  return `In-cab alert delivered · ${time}`
 }
 
 export function DriverContactActions({
   driverId,
   driverName,
   online,
-  variant = 'banner',
 }: DriverContactActionsProps) {
   const phone = getDriverPhone(driverId)
   const [lastAction, setLastAction] = useState<ContactActionStatus | null>(null)
@@ -68,29 +65,25 @@ export function DriverContactActions({
       setLastAction({
         type: 'ping',
         at: startedAt,
-        phase: online ? 'delivered' : 'failed',
+        phase: 'delivered',
       })
       setIsBusy(false)
       actionTimerRef.current = null
     }, 1400)
   }
 
-  const isCompact = variant === 'compact'
-
   return (
-    <div className={isCompact ? 'space-y-2' : 'mt-4 space-y-3'}>
-      <div className={`grid gap-2 sm:flex sm:flex-wrap ${isCompact ? '' : 'sm:gap-3'}`}>
+    <div className="mt-4 space-y-3">
+      <div className="grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
         <a
-          href={`tel:${phone.replace(/\D/g, '')}`}
+          href={getDriverTelHref(driverId)}
           onClick={(event) => {
             event.preventDefault()
             startCall()
           }}
-          className={`hex-btn-critical ${
-            isCompact ? 'hex-btn-sm' : 'hex-btn-md w-full sm:w-auto'
-          }`}
+          className="hex-btn-critical hex-btn-md w-full sm:w-auto"
         >
-          <Phone aria-hidden="true" size={isCompact ? 14 : 16} strokeWidth={1.75} />
+          <Phone aria-hidden="true" size={16} strokeWidth={1.75} />
           Call driver
         </a>
         <button
@@ -98,37 +91,31 @@ export function DriverContactActions({
           onClick={sendPing}
           disabled={!online || isBusy}
           title={online ? undefined : 'Driver is offline — try calling instead'}
-          className={`hex-btn-primary ${
-            isCompact ? 'hex-btn-sm' : 'hex-btn-md w-full sm:w-auto'
-          }`}
+          className="hex-btn-primary hex-btn-md w-full sm:w-auto"
         >
-          <BellRing aria-hidden="true" size={isCompact ? 14 : 16} strokeWidth={1.75} />
+          <BellRing aria-hidden="true" size={16} strokeWidth={1.75} />
           Ping to stop driving
         </button>
       </div>
 
-      {!isCompact && (
-        <p className="text-xs leading-relaxed opacity-80">
-          Ping sends an urgent in-cab alert: “{violationStopPingMessage}”
-        </p>
-      )}
+      <p className="text-xs leading-relaxed opacity-80">
+        Ping sends an urgent in-cab alert: “{violationStopPingMessage}”
+      </p>
 
       {lastAction && (
         <p
           role="status"
           className={`text-xs font-medium ${
-            lastAction.phase === 'failed'
-              ? 'text-risk-critical'
-              : lastAction.phase === 'pending'
-                ? 'text-hex-muted'
-                : 'text-success-text'
+            lastAction.phase === 'pending'
+              ? 'text-hex-muted'
+              : 'text-success-text'
           }`}
         >
           {statusMessage(lastAction, driverName, phone)}
         </p>
       )}
 
-      {!online && !isCompact && (
+      {!online && (
         <p className="text-xs opacity-75">Driver app offline — ping unavailable. Call or radio dispatch.</p>
       )}
     </div>

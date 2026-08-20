@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createDriverSummary } from '../test/factories'
 import {
   getDataFreshness,
   getDriveMinutesUsed,
@@ -65,22 +66,12 @@ describe('alert ordering', () => {
       severity: DriverSummary['severity'],
       driveMinutesRemaining: number,
     ): DriverSummary => ({
+      ...createDriverSummary('driver-test', 'Test Driver', driveMinutesRemaining),
       driver,
-      truck: {
-        id: 'truck-test',
-        unitNumber: 'T-001',
-        type: 'Dry van',
-        status: 'active',
-      },
       route: null,
-      currentDelivery: null,
-      driveMinutesUsed: 600,
-      driveMinutesRemaining,
       severity,
-      freshness: 'live',
       projectedOverLimit: false,
       remainingStops: 0,
-      legalStopTime: null,
     })
 
     const sorted = sortByUrgency([

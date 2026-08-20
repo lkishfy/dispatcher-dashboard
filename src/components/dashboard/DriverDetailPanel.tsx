@@ -8,7 +8,7 @@ import { LoadSection } from './LoadSection'
 import { ReassignmentSection } from './ReassignmentSection'
 import { severityStyles } from './display'
 
-export interface DriverDetailContentProps {
+interface DriverDetailContentProps {
   summary: DriverSummary
   reassignmentCandidates: DriverSummary[]
   stagedReplacement: DriverSummary | null

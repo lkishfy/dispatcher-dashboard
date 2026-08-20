@@ -107,6 +107,32 @@ function App() {
     ? summariesById.get(workflow.confirmed[selectedSummary.driver.id]) ?? null
     : null
 
+  const openDriver = (driverId: string, origin: 'alerts' | 'board') => {
+    setSelectedDriverOrigin(origin)
+    setSelectedDriverId(driverId)
+  }
+
+  const closeSelectedDriver = () => {
+    setSelectedDriverId(null)
+    setSelectedDriverOrigin(null)
+  }
+
+  const collapseAlerts = () => {
+    setIsAlertsSidebarOpen(false)
+    if (selectedDriverOrigin === 'alerts') closeSelectedDriver()
+  }
+
+  const selectedDriverDetailProps = selectedSummary ? {
+    summary: selectedSummary,
+    reassignmentCandidates: detailCandidates,
+    stagedReplacement: stagedReplacementForSelected,
+    confirmedReplacement: confirmedReplacementForSelected,
+    onStageReassign: workflow.stage,
+    onConfirmReassign: workflow.confirm,
+    onUndoReassign: workflow.undo,
+    onClose: closeSelectedDriver,
+  } : null
+
   return (
     <div className={`${hexPage} flex h-dvh flex-col overflow-hidden`}>
       <DashboardHeader />
@@ -126,10 +152,7 @@ function App() {
                 isRefreshing={isRefreshing}
                 onToggleSelect={workflow.toggleSelection}
                 onBatchReassign={() => setIsBatchModalOpen(true)}
-                onOpenDriver={(driverId) => {
-                  setSelectedDriverOrigin('board')
-                  setSelectedDriverId(driverId)
-                }}
+                onOpenDriver={(driverId) => openDriver(driverId, 'board')}
                 onRefresh={refresh}
               />
             </div>
@@ -137,13 +160,7 @@ function App() {
           {isAlertsSidebarOpen && (
             <button
               type="button"
-              onClick={() => {
-                setIsAlertsSidebarOpen(false)
-                if (selectedDriverOrigin === 'alerts') {
-                  setSelectedDriverId(null)
-                  setSelectedDriverOrigin(null)
-                }
-              }}
+              onClick={collapseAlerts}
               aria-label="Hide alerts and return to Driver Board"
               className="absolute inset-0 z-20 cursor-default bg-hex-overlay/15"
             />
@@ -161,54 +178,17 @@ function App() {
           onDismissVerification={(driverId) => {
             setDismissedVerificationIds((current) => new Set(current).add(driverId))
           }}
-          onOpenDriver={(driverId) => {
-            setSelectedDriverOrigin('alerts')
-            setSelectedDriverId(driverId)
-          }}
-          onReassign={(driverId) => {
-            setSelectedDriverOrigin('alerts')
-            setSelectedDriverId(driverId)
-          }}
-          nestedContent={selectedSummary && selectedDriverOrigin === 'alerts' ? (
-            <DriverDetailContent
-              summary={selectedSummary}
-              reassignmentCandidates={detailCandidates}
-              stagedReplacement={stagedReplacementForSelected}
-              confirmedReplacement={confirmedReplacementForSelected}
-              onStageReassign={workflow.stage}
-              onConfirmReassign={workflow.confirm}
-              onUndoReassign={workflow.undo}
-              onClose={() => {
-                setSelectedDriverId(null)
-                setSelectedDriverOrigin(null)
-              }}
-            />
+          onOpenDriver={(driverId) => openDriver(driverId, 'alerts')}
+          nestedContent={selectedDriverDetailProps && selectedDriverOrigin === 'alerts' ? (
+            <DriverDetailContent {...selectedDriverDetailProps} />
           ) : undefined}
           onExpand={() => setIsAlertsSidebarOpen(true)}
-          onCollapse={() => {
-            setIsAlertsSidebarOpen(false)
-            if (selectedDriverOrigin === 'alerts') {
-              setSelectedDriverId(null)
-              setSelectedDriverOrigin(null)
-            }
-          }}
+          onCollapse={collapseAlerts}
         />
       </div>
 
-      {selectedSummary && selectedDriverOrigin !== 'alerts' && (
-        <DriverDetailPanel
-          summary={selectedSummary}
-          reassignmentCandidates={detailCandidates}
-          stagedReplacement={stagedReplacementForSelected}
-          confirmedReplacement={confirmedReplacementForSelected}
-          onStageReassign={workflow.stage}
-          onConfirmReassign={workflow.confirm}
-          onUndoReassign={workflow.undo}
-          onClose={() => {
-            setSelectedDriverId(null)
-            setSelectedDriverOrigin(null)
-          }}
-        />
+      {selectedDriverDetailProps && selectedDriverOrigin !== 'alerts' && (
+        <DriverDetailPanel {...selectedDriverDetailProps} />
       )}
 
       {isBatchModalOpen && (

@@ -1,5 +1,6 @@
 import type { DataFreshness, HosSeverity } from '../../domain/hos'
 import type { DutyStatus } from '../../types/fleet'
+import { freshnessLabels, severityLabels, statusLabels } from './display'
 import { HexSearchInput } from './HexSearchInput'
 import { HexSelect } from './HexSelect'
 
@@ -15,31 +16,24 @@ interface FleetFiltersProps {
   onFreshnessChange: (freshness: DataFreshness | 'all') => void
 }
 
-const statusOptions = [
+const dutyStatuses: DutyStatus[] = ['driving', 'on-duty', 'on-break', 'sleeper-berth', 'off-duty']
+const severities: HosSeverity[] = ['violation', 'critical', 'warning', 'normal', 'no-data']
+const freshnessStates: DataFreshness[] = ['live', 'stale', 'offline', 'no-data']
+
+const statusOptions: Array<{ value: DutyStatus | 'all'; label: string }> = [
   { value: 'all', label: 'All statuses' },
-  { value: 'driving', label: 'Driving' },
-  { value: 'on-duty', label: 'On duty' },
-  { value: 'on-break', label: 'On break' },
-  { value: 'sleeper-berth', label: 'Sleeper berth' },
-  { value: 'off-duty', label: 'Off duty' },
-] as const satisfies ReadonlyArray<{ value: DutyStatus | 'all'; label: string }>
+  ...dutyStatuses.map((value) => ({ value, label: statusLabels[value] })),
+]
 
-const severityOptions = [
+const severityOptions: Array<{ value: HosSeverity | 'all'; label: string }> = [
   { value: 'all', label: 'All HOS states' },
-  { value: 'violation', label: 'Violation' },
-  { value: 'critical', label: 'Limit imminent' },
-  { value: 'warning', label: 'Approaching limit' },
-  { value: 'normal', label: 'On track' },
-  { value: 'no-data', label: 'No data' },
-] as const satisfies ReadonlyArray<{ value: HosSeverity | 'all'; label: string }>
+  ...severities.map((value) => ({ value, label: severityLabels[value] })),
+]
 
-const freshnessOptions = [
+const freshnessOptions: Array<{ value: DataFreshness | 'all'; label: string }> = [
   { value: 'all', label: 'All connections' },
-  { value: 'live', label: 'Live' },
-  { value: 'stale', label: 'Stale data' },
-  { value: 'offline', label: 'Offline' },
-  { value: 'no-data', label: 'No data' },
-] as const satisfies ReadonlyArray<{ value: DataFreshness | 'all'; label: string }>
+  ...freshnessStates.map((value) => ({ value, label: freshnessLabels[value] })),
+]
 
 export function FleetFilters({
   search,
@@ -66,21 +60,21 @@ export function FleetFilters({
       <div className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
         <HexSelect
           value={status}
-          options={[...statusOptions]}
+          options={statusOptions}
           onChange={onStatusChange}
           ariaLabel="Filter by duty status"
           className="w-full sm:w-auto"
         />
         <HexSelect
           value={severity}
-          options={[...severityOptions]}
+          options={severityOptions}
           onChange={onSeverityChange}
           ariaLabel="Filter by HOS severity"
           className="w-full sm:w-auto"
         />
         <HexSelect
           value={freshness}
-          options={[...freshnessOptions]}
+          options={freshnessOptions}
           onChange={onFreshnessChange}
           ariaLabel="Filter by data freshness"
           className="w-full sm:w-auto"

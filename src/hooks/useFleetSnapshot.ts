@@ -40,7 +40,6 @@ export function useFleetSnapshot(initialFleet: FleetData) {
   )
 
   return {
-    fleetSnapshot,
     summaries,
     lastRefreshedAt,
     isRefreshing,

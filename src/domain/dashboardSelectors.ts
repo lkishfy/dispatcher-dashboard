@@ -17,7 +17,7 @@ export function getHosAlertDrivers(
   )
 }
 
-export function needsVerification(summary: DriverSummary): boolean {
+function needsVerification(summary: DriverSummary): boolean {
   return !isViolation(summary)
     && (
       summary.route === null

@@ -17,6 +17,14 @@ export const severityStyles: Record<HosSeverity, string> = {
   'no-data': 'border-hex-border bg-hex-bg text-hex-muted',
 }
 
+export const severityDotStyles: Record<HosSeverity, string> = {
+  violation: 'bg-risk-critical',
+  critical: 'bg-risk-high',
+  warning: 'bg-risk-medium',
+  normal: 'bg-success',
+  'no-data': 'bg-hex-muted',
+}
+
 export const statusLabels: Record<DutyStatus, string> = {
   driving: 'Driving',
   'on-duty': 'On duty',

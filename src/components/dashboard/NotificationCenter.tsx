@@ -2,15 +2,14 @@ import {
   AlertOctagon,
   Bell,
   Clock3,
-  Phone,
   TriangleAlert,
   X,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { getVerificationReason } from '../../domain/dashboardSelectors'
 import { formatDuration, type DriverSummary } from '../../domain/hos'
-import { getDriverPhone } from '../../utils/driverContact'
 import { DismissViolationDialog } from './DismissViolationDialog'
+import { DriverContactAction } from './DriverContactAction'
 import { getViolationSummary } from './alertDisplay'
 
 type NotificationKind = 'violation' | 'hos' | 'verification'
@@ -29,7 +28,6 @@ export interface NotificationCenterProps {
   onDismissViolation: (driverId: string) => void
   onDismissVerification: (driverId: string) => void
   onOpenDriver: (driverId: string) => void
-  onReassign: (driverId: string) => void
   headerAction?: ReactNode
   className?: string
 }
@@ -88,7 +86,6 @@ export function NotificationCenter({
   onDismissViolation,
   onDismissVerification,
   onOpenDriver,
-  onReassign,
   headerAction,
   className = '',
 }: NotificationCenterProps) {
@@ -186,8 +183,6 @@ export function NotificationCenter({
           {visibleNotifications.map((item) => {
             const { summary } = item
             const style = kindStyles[item.kind]
-            const phone = getDriverPhone(summary.driver.id).replace(/\D/g, '')
-            const isViolation = item.kind === 'violation'
 
             return (
               <li key={item.id} className="px-4 py-3 sm:px-5">
@@ -212,18 +207,11 @@ export function NotificationCenter({
                       {getNotificationDetail(item)}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <a
-                        href={`tel:${phone}`}
-                        aria-label={`Call ${summary.driver.name}`}
-                        className={`${isViolation ? 'hex-btn-critical' : 'hex-btn-secondary'} hex-btn-sm min-w-20`}
-                      >
-                        <Phone aria-hidden="true" size={12} />
-                        Call
-                      </a>
+                      <DriverContactAction summary={summary} compact />
                       {item.kind !== 'verification' && (
                         <button
                           type="button"
-                          onClick={() => onReassign(summary.driver.id)}
+                          onClick={() => onOpenDriver(summary.driver.id)}
                           disabled={!summary.route}
                           className="hex-btn-secondary hex-btn-sm min-w-20"
                         >

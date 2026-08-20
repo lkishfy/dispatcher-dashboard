@@ -36,7 +36,7 @@ describe('useFleetSnapshot', () => {
   it('publishes refreshed summaries when the timer completes', () => {
     vi.useFakeTimers()
     const { result } = renderHook(() => useFleetSnapshot(fleet))
-    const initialSnapshotTime = result.current.fleetSnapshot.snapshotTime
+    const initialRefreshTime = result.current.lastRefreshedAt
 
     act(() => {
       result.current.refresh()
@@ -44,7 +44,7 @@ describe('useFleetSnapshot', () => {
     })
 
     expect(result.current.isRefreshing).toBe(false)
-    expect(result.current.fleetSnapshot.snapshotTime).not.toBe(initialSnapshotTime)
+    expect(result.current.lastRefreshedAt).not.toBe(initialRefreshTime)
     expect(result.current.summaries).toHaveLength(fleet.drivers.length)
   })
 })

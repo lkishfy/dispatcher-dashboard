@@ -33,7 +33,6 @@
   --shadow-popover: 0 8px 24px rgb(31 41 55 / 0.12);
   --shadow-dialog: 0 24px 64px rgb(17 24 39 / 0.28);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -94,8 +93,7 @@ dialog::backdrop {
 
 .hex-btn-primary,
 .hex-btn-secondary,
-.hex-btn-critical,
-.hex-btn-critical-outline {
+.hex-btn-critical {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -126,8 +124,7 @@ dialog::backdrop {
 
 .hex-btn-primary:disabled,
 .hex-btn-secondary:disabled,
-.hex-btn-critical:disabled,
-.hex-btn-critical-outline:disabled {
+.hex-btn-critical:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
@@ -154,21 +151,9 @@ dialog::backdrop {
   background: color-mix(in srgb, var(--color-risk-critical), black 10%);
 }
 
-.hex-btn-critical-outline {
-  border-color: var(--color-risk-critical-border);
-  background: var(--color-risk-critical-surface);
-  color: var(--color-risk-critical);
-}
-
-.hex-btn-critical-outline:hover {
-  border-color: var(--color-risk-critical);
-  background: color-mix(in srgb, var(--color-risk-critical-surface), var(--color-risk-critical) 5%);
-}
-
 .hex-btn-primary:focus-visible,
 .hex-btn-secondary:focus-visible,
-.hex-btn-critical:focus-visible,
-.hex-btn-critical-outline:focus-visible {
+.hex-btn-critical:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
@@ -240,14 +225,6 @@ dialog::backdrop {
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.35;
-  color: var(--color-hex-ink);
-}
-
-.hex-metric {
-  font-size: 1.125rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
   color: var(--color-hex-ink);
 }
 

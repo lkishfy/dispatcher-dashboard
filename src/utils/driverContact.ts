@@ -4,13 +4,13 @@ export function getDriverPhone(driverId: string): string {
   return `(312) 555-${String(line).slice(-4)}`
 }
 
+export function getDriverTelHref(driverId: string): string {
+  return `tel:${getDriverPhone(driverId).replace(/\D/g, '')}`
+}
+
 export const violationStopPingMessage =
   'URGENT: Stop driving now. You are over the 11-hour limit. Pull over safely and begin your 10-hour reset.'
 
-export type ContactActionType = 'call' | 'ping'
-
-export interface ContactActionStatus {
-  type: ContactActionType
-  at: Date
-  phase: 'pending' | 'connected' | 'delivered' | 'failed'
-}
+export type ContactActionStatus =
+  | { type: 'call'; at: Date; phase: 'pending' | 'connected' }
+  | { type: 'ping'; at: Date; phase: 'pending' | 'delivered' }

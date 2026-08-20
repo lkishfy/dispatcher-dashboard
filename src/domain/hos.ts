@@ -1,9 +1,9 @@
 import type { Delivery, Driver, FleetData, Route, Truck } from '../types/fleet'
 
 export const HOS_DRIVE_LIMIT_MINUTES = 11 * 60
-export const HOS_WARNING_MINUTES = 90
-export const HOS_CRITICAL_MINUTES = 30
-export const STALE_DATA_MINUTES = 5
+const HOS_WARNING_MINUTES = 90
+const HOS_CRITICAL_MINUTES = 30
+const STALE_DATA_MINUTES = 5
 
 export type HosSeverity = 'violation' | 'critical' | 'warning' | 'normal' | 'no-data'
 export type DataFreshness = 'live' | 'stale' | 'offline' | 'no-data'
@@ -59,7 +59,7 @@ export function getHosSeverity(
   return 'normal'
 }
 
-export function getLegalStopTime(
+function getLegalStopTime(
   snapshotTime: string,
   driver: Driver,
   driveMinutesRemaining: number | null,

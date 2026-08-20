@@ -7,7 +7,7 @@ import {
 import { formatDuration, type DriverSummary } from '../../domain/hos'
 import { hexAvatar } from './hexStyles'
 
-export interface ReassignmentSectionProps {
+interface ReassignmentSectionProps {
   summary: DriverSummary
   candidates: DriverSummary[]
   stagedReplacement: DriverSummary | null

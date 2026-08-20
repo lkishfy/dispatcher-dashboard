@@ -1,7 +1,7 @@
 import { Check, ChevronDown } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react'
 
-export interface HexSelectOption<T extends string = string> {
+interface HexSelectOption<T extends string = string> {
   value: T
   label: string
 }
