@@ -24,6 +24,11 @@ export interface NotificationCenterProps {
 
 const INITIAL_VISIBLE_COUNT = 6
 
+function compareByHosUrgency(first: DriverSummary, second: DriverSummary): number {
+  return (first.driveMinutesRemaining ?? Number.MAX_SAFE_INTEGER)
+    - (second.driveMinutesRemaining ?? Number.MAX_SAFE_INTEGER)
+}
+
 export function NotificationCenter({
   violations,
   hosAlerts,
@@ -38,12 +43,12 @@ export function NotificationCenter({
   const [view, setView] = useState<'preview' | 'full'>('preview')
   const [pendingDismissal, setPendingDismissal] = useState<DriverSummary | null>(null)
   const notifications = useMemo<NotificationItem[]>(() => [
-    ...violations.map((summary) => ({
+    ...violations.toSorted(compareByHosUrgency).map((summary) => ({
       id: `violation:${summary.driver.id}`,
       kind: 'violation' as const,
       summary,
     })),
-    ...hosAlerts.map((summary) => ({
+    ...hosAlerts.toSorted(compareByHosUrgency).map((summary) => ({
       id: `hos:${summary.driver.id}`,
       kind: 'hos' as const,
       summary,

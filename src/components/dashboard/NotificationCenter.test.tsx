@@ -5,11 +5,15 @@ import type { DriverSummary } from '../../domain/hos'
 import { createDriverSummary } from '../../test/factories'
 import { NotificationCenter } from './NotificationCenter'
 
-function createViolation(id = 'a', name = 'Alex Rivera'): DriverSummary {
+function createViolation(
+  id = 'a',
+  name = 'Alex Rivera',
+  driveMinutesRemaining = -12,
+): DriverSummary {
   return {
-    ...createDriverSummary(id, name, -12),
+    ...createDriverSummary(id, name, driveMinutesRemaining),
     severity: 'violation',
-    driveMinutesRemaining: -12,
+    driveMinutesRemaining,
   }
 }
 
@@ -36,6 +40,31 @@ describe('NotificationCenter', () => {
     expect(screen.getByText('HOS alert')).toBeInTheDocument()
     expect(screen.queryByText('Violation')).not.toBeInTheDocument()
     expect(screen.queryByText('Needs verification')).not.toBeInTheDocument()
+  })
+
+  it('sorts violations by largest overage and HOS alerts by nearest limit', () => {
+    render(
+      <NotificationCenter
+        violations={[
+          createViolation('mild', 'Mild Violation', -10),
+          createViolation('severe', 'Severe Violation', -120),
+        ]}
+        hosAlerts={[
+          createDriverSummary('later', 'Later Limit', 75),
+          createDriverSummary('sooner', 'Sooner Limit', 20),
+        ]}
+        verificationDrivers={[]}
+        onDismissViolation={vi.fn()}
+        onDismissVerification={vi.fn()}
+        onOpenDriver={vi.fn()}
+      />,
+    )
+
+    const alertRows = screen.getAllByRole('listitem')
+    expect(alertRows[0]).toHaveTextContent('Severe Violation')
+    expect(alertRows[1]).toHaveTextContent('Mild Violation')
+    expect(alertRows[2]).toHaveTextContent('Sooner Limit')
+    expect(alertRows[3]).toHaveTextContent('Later Limit')
   })
 
   it('supports HOS drill-in, calling, and reassignment', async () => {
