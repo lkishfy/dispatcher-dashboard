@@ -90,9 +90,22 @@ describe('getReassignmentCandidates', () => {
       driveMinutesRemaining: 100,
     }
 
+    const assignedBase = makeSummary('already-assigned', 'normal', false, 3)
+    const alreadyAssigned = {
+      ...assignedBase,
+      driver: {
+        ...assignedBase.driver,
+        availableForReassignment: true,
+      },
+      truck: {
+        ...assignedBase.truck,
+        status: 'available' as const,
+      },
+    }
+
     const candidates = getReassignmentCandidates(
       load,
-      [nearerHub, wrongEquipment, insufficientHos, local],
+      [nearerHub, wrongEquipment, insufficientHos, alreadyAssigned, local],
     )
 
     expect(candidates.map((candidate) => candidate.driver.id)).toEqual(['local', 'nearer-hub'])

@@ -29,6 +29,7 @@ export function createDriverSummary(
       id,
       name,
       initials: name.slice(0, 2),
+      routeId: available ? null : `route-${id}`,
       availableForReassignment: available,
     },
     truck: {

@@ -51,18 +51,6 @@ export function DriverDesktopRow({
       </td>
       <td className="px-4 py-4"><DriverRiskStatus summary={summary} /></td>
       <td className="px-4 py-4">
-        {summary.route ? (
-          <div>
-            <p className="text-sm font-medium text-hex-ink">
-              {summary.route.id.toUpperCase()} · {summary.route.loadLabel}
-            </p>
-            <p className="mt-1 max-w-64 truncate text-xs text-hex-muted">
-              {summary.currentDelivery?.customer ?? 'Route complete'}
-            </p>
-          </div>
-        ) : <span className="text-sm text-hex-muted">Unassigned</span>}
-      </td>
-      <td className="px-4 py-4">
         <p className="flex items-center gap-2 text-sm font-semibold tabular-nums text-hex-ink">
           {summary.projectedOverLimit && (
             <TriangleAlert
@@ -73,6 +61,18 @@ export function DriverDesktopRow({
           )}
           {summary.remainingStops > 0 ? summary.remainingStops : '—'}
         </p>
+      </td>
+      <td className="px-4 py-4">
+        {summary.route ? (
+          <div>
+            <p className="text-sm font-medium text-hex-ink">
+              {summary.route.id.toUpperCase()} · {summary.route.loadLabel}
+            </p>
+            <p className="mt-1 max-w-64 truncate text-xs text-hex-muted">
+              {summary.currentDelivery?.customer ?? 'Route complete'}
+            </p>
+          </div>
+        ) : <span className="text-sm text-hex-muted">Unassigned</span>}
       </td>
       <td className="px-4 py-4 text-left">
         <DriverNudgeAction

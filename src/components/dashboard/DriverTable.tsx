@@ -73,8 +73,8 @@ export function DriverTable({
               </th>
               <th className="px-5 py-3 text-left">Driver</th>
               <th className="px-4 py-3 text-left">Risk status</th>
-              <th className="px-4 py-3 text-left">Route</th>
               <th className="px-4 py-3 text-left">Remaining stops</th>
+              <th className="px-4 py-3 text-left">Route</th>
               <th className="px-4 py-3 text-left">Nudge</th>
               <th className="px-5 py-3 text-left">Contact</th>
             </tr>

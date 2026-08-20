@@ -12,6 +12,7 @@ export function getAvailableDrivers(
     !excludedDriverIds.has(summary.driver.id)
     && summary.driver.availableForReassignment
     && summary.truck.status === 'available'
+    && summary.route === null
     && summary.freshness === 'live'
     && (summary.driveMinutesRemaining ?? 0) >= 120
   )).toSorted(
