@@ -10,10 +10,9 @@ import type {
 export const HOS_DRIVE_LIMIT_MINUTES = 11 * 60
 const HOS_WARNING_MINUTES = 90
 const HOS_CRITICAL_MINUTES = 30
-const STALE_DATA_MINUTES = 5
 
 export const HOS_SEVERITIES = ['violation', 'critical', 'warning', 'normal', 'no-data'] as const
-export const DATA_FRESHNESS_STATES = ['live', 'stale', 'offline', 'no-data'] as const
+export const DATA_FRESHNESS_STATES = ['live', 'offline', 'no-data'] as const
 
 export type HosSeverity = typeof HOS_SEVERITIES[number]
 export type DataFreshness = typeof DATA_FRESHNESS_STATES[number]
@@ -57,7 +56,6 @@ export function getDriveMinutesUsed(driver: Driver): number | null {
 export function getDataFreshness(driver: Driver): DataFreshness {
   if (driver.telemetry.lastUpdatedMinutesAgo === null) return 'no-data'
   if (!driver.telemetry.online) return 'offline'
-  if (driver.telemetry.lastUpdatedMinutesAgo > STALE_DATA_MINUTES) return 'stale'
   return 'live'
 }
 

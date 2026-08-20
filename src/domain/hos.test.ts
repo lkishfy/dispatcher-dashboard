@@ -43,12 +43,12 @@ describe('HOS calculations', () => {
     expect(getHosSeverity(140, 175)).toBe('warning')
   })
 
-  it('distinguishes stale, offline, and missing telemetry', () => {
+  it('distinguishes live, offline, and missing telemetry', () => {
     expect(getDataFreshness(driver)).toBe('live')
     expect(getDataFreshness({
       ...driver,
       telemetry: { online: true, lastUpdatedMinutesAgo: 8 },
-    })).toBe('stale')
+    })).toBe('live')
     expect(getDataFreshness({
       ...driver,
       telemetry: { online: false, lastUpdatedMinutesAgo: 22 },

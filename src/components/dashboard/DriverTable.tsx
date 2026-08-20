@@ -59,7 +59,7 @@ export function DriverTable({
         ))}
       </div>
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[1120px] border-collapse text-left">
+        <table className="w-full min-w-[1000px] border-collapse text-left">
           <thead>
             <tr className="hex-label border-b border-hex-border bg-hex-bg">
               <th className="w-14 px-0 py-3 text-center">
@@ -75,7 +75,6 @@ export function DriverTable({
               <th className="px-4 py-3 text-left">Risk status</th>
               <th className="px-4 py-3 text-left">Route</th>
               <th className="px-4 py-3 text-left">Remaining stops</th>
-              <th className="px-4 py-3 text-left">Data freshness</th>
               <th className="px-4 py-3 text-left">Nudge</th>
               <th className="px-5 py-3 text-left">Contact</th>
             </tr>

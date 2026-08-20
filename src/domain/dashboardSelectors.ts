@@ -35,9 +35,6 @@ export function getVerificationReason(summary: DriverSummary): string {
       ? 'Driver offline'
       : `Driver offline · last update ${lastUpdate}m ago`
   }
-  if (summary.freshness === 'stale') {
-    return `Telemetry stale · updated ${lastUpdate}m ago`
-  }
   if (summary.route === null) return 'No active route assigned'
   return 'Telemetry requires verification'
 }

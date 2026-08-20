@@ -35,14 +35,12 @@ export const statusLabels: Record<DutyStatus, string> = {
 
 export const freshnessLabels: Record<DataFreshness, string> = {
   live: 'Live',
-  stale: 'Stale data',
   offline: 'Offline',
   'no-data': 'No data',
 }
 
 export const freshnessDotStyles: Record<DataFreshness, string> = {
   live: 'bg-success',
-  stale: 'bg-warning',
   offline: 'bg-risk-critical',
   'no-data': 'bg-hex-muted',
 }

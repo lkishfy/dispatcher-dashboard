@@ -1,7 +1,6 @@
 import { TriangleAlert } from 'lucide-react'
 import { canReassignLoad } from '../../domain/hos'
 import { SelectionCheckbox } from '../ui/SelectionCheckbox'
-import { DataFreshness } from './DataFreshness'
 import { DriverAlertBadge } from './DriverAlertBadge'
 import { DriverContactAction } from './DriverContactAction'
 import { DriverNudgeAction } from './DriverNudgeAction'
@@ -75,7 +74,6 @@ export function DriverDesktopRow({
           {summary.remainingStops > 0 ? summary.remainingStops : '—'}
         </p>
       </td>
-      <td className="px-4 py-4"><DataFreshness summary={summary} /></td>
       <td className="px-4 py-4 text-left">
         <DriverNudgeAction
           summary={summary}

@@ -28,7 +28,7 @@ npm run build      # Production build
 - **Maya Chen** has 20 minutes of drive time left and cannot finish the assigned route legally.
 - **Jordan Brooks** is approaching the limit with a projected route overrun.
 - **Priya Shah** is on break, showing that remaining drive time is paused rather than a wall-clock countdown.
-- **Marcus Green** is offline, **Theo Bennett** has stale telemetry, and **Elena Garcia** has no HOS data.
+- **Marcus Green** is offline, and **Elena Garcia** has no HOS data.
 - Select alerts for batch reassignment, open a driver to reassign or review HOS, and dismiss alerts once handled.
 - Open any driver to review the daily duty timeline, load impact, next legal action, and nearby reassignment options.
 

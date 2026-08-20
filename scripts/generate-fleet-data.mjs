@@ -105,7 +105,7 @@ const drivers = names.map((name, index) => {
     dutyLog: makeDutyLog(index, driveMinutes, hasData),
     telemetry: {
       online,
-      lastUpdatedMinutesAgo: hasData ? (online ? (index === 6 ? 9 : 1 + (index % 4)) : 28) : null,
+      lastUpdatedMinutesAgo: hasData ? (online ? 1 + (index % 4) : 28) : null,
     },
     availableForReassignment: index >= 45 || index === 7,
     distanceFromHubMiles: 2 + ((index * 7) % 42),
