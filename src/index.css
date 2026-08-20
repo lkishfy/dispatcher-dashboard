@@ -1,0 +1,263 @@
+@import "tailwindcss";
+
+@theme {
+  --color-hex-bg: #f9fafb;
+  --color-hex-ink: #1f2937;
+  --color-hex-muted: #6b7280;
+  --color-hex-border: #e5e7eb;
+  --color-hex-accent: #d1d5db;
+  --color-hex-surface: #ffffff;
+  --color-risk-critical: #b91c1c;
+  --color-risk-critical-surface: #fef2f2;
+  --color-risk-critical-border: #fca5a5;
+  --color-risk-high: #c2410c;
+  --color-risk-high-surface: #fff7ed;
+  --color-risk-high-border: #fdba74;
+  --color-risk-medium: #a16207;
+  --color-risk-medium-surface: #fffbeb;
+  --color-risk-medium-border: #fcd34d;
+  --color-risk-unknown: #64748b;
+  --color-success: #047857;
+  --color-success-text: #065f46;
+  --color-success-surface: #ecfdf5;
+  --color-success-border: #6ee7b7;
+  --color-warning: #b45309;
+  --color-warning-text: #78350f;
+  --color-warning-surface: #fffbeb;
+  --color-warning-border: #fcd34d;
+  --color-focus: #1f2937;
+  --color-hex-overlay: rgb(17 24 39 / 0.58);
+  --radius-control: 0.5rem;
+  --radius-popover: 0.625rem;
+  --radius-dialog: 0.75rem;
+  --shadow-popover: 0 8px 24px rgb(31 41 55 / 0.12);
+  --shadow-dialog: 0 24px 64px rgb(17 24 39 / 0.28);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  font-family: var(--font-sans);
+  color: var(--color-hex-ink);
+  background: var(--color-hex-bg);
+  line-height: 1.6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--color-hex-bg);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-size: 0.9375rem;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+dialog::backdrop {
+  background: var(--color-hex-overlay);
+  backdrop-filter: blur(2px);
+}
+
+.hex-grid {
+  background-color: var(--color-hex-bg);
+  background-image:
+    linear-gradient(to right, rgb(31 41 55 / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(31 41 55 / 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.hex-card {
+  border: 1px solid var(--color-hex-border);
+  background: var(--color-hex-surface);
+  border-radius: 0.625rem;
+}
+
+.hex-btn-primary,
+.hex-btn-secondary,
+.hex-btn-critical,
+.hex-btn-critical-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.25rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.hex-btn-primary {
+  border-color: var(--color-hex-ink);
+  background: var(--color-hex-ink);
+  color: white;
+}
+
+.hex-btn-primary:hover {
+  background: color-mix(in srgb, var(--color-hex-ink), white 10%);
+}
+
+.hex-btn-primary:disabled,
+.hex-btn-secondary:disabled,
+.hex-btn-critical:disabled,
+.hex-btn-critical-outline:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.hex-btn-secondary {
+  border-color: var(--color-hex-border);
+  background: white;
+  color: var(--color-hex-ink);
+}
+
+.hex-btn-secondary:hover {
+  border-color: color-mix(in srgb, var(--color-hex-border), var(--color-hex-ink) 12%);
+  background: var(--color-hex-bg);
+}
+
+.hex-btn-critical {
+  border-color: var(--color-risk-critical);
+  background: var(--color-risk-critical);
+  color: white;
+}
+
+.hex-btn-critical:hover {
+  border-color: color-mix(in srgb, var(--color-risk-critical), black 10%);
+  background: color-mix(in srgb, var(--color-risk-critical), black 10%);
+}
+
+.hex-btn-critical-outline {
+  border-color: var(--color-risk-critical-border);
+  background: var(--color-risk-critical-surface);
+  color: var(--color-risk-critical);
+}
+
+.hex-btn-critical-outline:hover {
+  border-color: var(--color-risk-critical);
+  background: color-mix(in srgb, var(--color-risk-critical-surface), var(--color-risk-critical) 5%);
+}
+
+.hex-btn-primary:focus-visible,
+.hex-btn-secondary:focus-visible,
+.hex-btn-critical:focus-visible,
+.hex-btn-critical-outline:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.hex-btn-sm {
+  min-height: 2rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.hex-btn-md {
+  min-height: 2.5rem;
+}
+
+.hex-input {
+  height: 2.5rem;
+  border: 1px solid var(--color-hex-border);
+  background: white;
+  color: var(--color-hex-ink);
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  outline: none;
+}
+
+.hex-input:focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-focus), transparent 82%);
+}
+
+.hex-select {
+  height: 2.5rem;
+  min-width: 9.5rem;
+  appearance: none;
+  border: 1px solid var(--color-hex-border);
+  border-radius: 0.5rem;
+  background-color: white;
+  padding: 0 0.75rem;
+  color: var(--color-hex-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  outline: none;
+}
+
+.hex-select:focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-focus), transparent 82%);
+}
+
+.hex-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-hex-muted);
+}
+
+.hex-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: var(--color-hex-ink);
+}
+
+.hex-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--color-hex-ink);
+}
+
+.hex-metric {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-hex-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
