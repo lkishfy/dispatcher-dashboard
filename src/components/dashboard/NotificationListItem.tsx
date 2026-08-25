@@ -52,7 +52,9 @@ function getNotificationDetail(item: NotificationItem): string {
   if (kind === 'hos') {
     return [
       `${formatDuration(summary.driveMinutesRemaining)} until 11-hour limit`,
-      'Reset due at limit',
+      summary.resetMinutesRemaining === null
+        ? null
+        : `Reset complete in ${formatDuration(summary.resetMinutesRemaining)}`,
       summary.route?.loadLabel,
     ].filter(Boolean).join(' · ')
   }

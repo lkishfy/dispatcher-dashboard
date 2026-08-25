@@ -59,5 +59,6 @@ export function createDriverSummary(
     projectedOverLimit: estimatedDriveMinutesRemaining > remaining,
     remainingStops: 1,
     legalStopTime: null,
+    resetMinutesRemaining: Math.max(0, remaining) + 600,
   }
 }

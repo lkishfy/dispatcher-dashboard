@@ -8,6 +8,7 @@ import type {
 } from '../types/fleet'
 
 export const HOS_DRIVE_LIMIT_MINUTES = 11 * 60
+export const HOS_RESET_MINUTES = 10 * 60
 const HOS_WARNING_MINUTES = 90
 const HOS_CRITICAL_MINUTES = 30
 
@@ -29,6 +30,7 @@ export interface DriverSummary {
   projectedOverLimit: boolean
   remainingStops: number
   legalStopTime: string | null
+  resetMinutesRemaining: number | null
 }
 
 export interface DutyTimelineEntry {
@@ -87,6 +89,20 @@ function getLegalStopTime(
   return stopTime.toISOString()
 }
 
+export function getResetMinutesRemaining(
+  driver: Driver,
+  driveMinutesRemaining: number | null,
+): number | null {
+  if (driveMinutesRemaining === null) return null
+  if (driver.status === 'off-duty' || driver.status === 'sleeper-berth') {
+    return Math.max(0, HOS_RESET_MINUTES - driver.currentStatusMinutes)
+  }
+  if (driver.status === 'driving') {
+    return Math.max(0, driveMinutesRemaining) + HOS_RESET_MINUTES
+  }
+  return null
+}
+
 export function buildDriverSummaries(fleet: FleetData): DriverSummary[] {
   const trucksById = new Map(fleet.trucks.map((truck) => [truck.id, truck]))
   const routesById = new Map(fleet.routes.map((route) => [route.id, route]))
@@ -123,6 +139,7 @@ export function buildDriverSummaries(fleet: FleetData): DriverSummary[] {
       projectedOverLimit,
       remainingStops: route ? route.deliveryIds.length - route.completedStops : 0,
       legalStopTime: getLegalStopTime(fleet.snapshotTime, driver, driveMinutesRemaining),
+      resetMinutesRemaining: getResetMinutesRemaining(driver, driveMinutesRemaining),
     }
   })
 }
@@ -224,7 +241,9 @@ export function getNextLegalAction(summary: DriverSummary): string {
     return 'Confirm driver status before dispatching'
   }
   if (summary.driveMinutesRemaining <= 0) {
-    return 'Stop driving now · begin 10-hour reset'
+    return summary.resetMinutesRemaining === null
+      ? 'Stop driving now · begin required reset'
+      : `Stop driving now · reset complete in ${formatDuration(summary.resetMinutesRemaining)}`
   }
   if (summary.driver.status === 'driving' && summary.legalStopTime) {
     const stopTime = new Intl.DateTimeFormat('en-US', {
@@ -232,7 +251,9 @@ export function getNextLegalAction(summary: DriverSummary): string {
       minute: '2-digit',
       timeZone: 'UTC',
     }).format(new Date(summary.legalStopTime))
-    return `Must stop by ${stopTime} · then 10-hour reset`
+    return summary.resetMinutesRemaining === null
+      ? `Must stop by ${stopTime} · then begin required reset`
+      : `Must stop by ${stopTime} · reset complete in ${formatDuration(summary.resetMinutesRemaining)}`
   }
   if (summary.driver.status === 'on-break') {
     return `Resume with ${formatDuration(summary.driveMinutesRemaining)} drive time`

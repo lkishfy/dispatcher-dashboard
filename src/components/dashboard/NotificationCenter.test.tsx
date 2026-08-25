@@ -85,7 +85,7 @@ describe('NotificationCenter', () => {
       />,
     )
 
-    expect(screen.getByText(/Reset due at limit/)).toBeInTheDocument()
+    expect(screen.getByText(/Reset complete in 10h 20m/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Alex Rivera' }))
     expect(onOpenDriver).toHaveBeenCalledWith('a')
     expect(screen.getByRole('link', { name: 'Call Alex Rivera' }))

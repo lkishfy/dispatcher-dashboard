@@ -4,6 +4,7 @@ import {
   getDataFreshness,
   getDriveMinutesUsed,
   getHosSeverity,
+  getResetMinutesRemaining,
   sortByUrgency,
   type DriverSummary,
 } from './hos'
@@ -41,6 +42,21 @@ describe('HOS calculations', () => {
 
   it('warns when a route needs more drive time than the driver has left', () => {
     expect(getHosSeverity(140, 175)).toBe('warning')
+  })
+
+  it('derives reset completion from drive time and qualifying rest', () => {
+    expect(getResetMinutesRemaining(driver, 25)).toBe(625)
+    expect(getResetMinutesRemaining(driver, -12)).toBe(600)
+    expect(getResetMinutesRemaining({
+      ...driver,
+      status: 'off-duty',
+      currentStatusMinutes: 240,
+    }, 120)).toBe(360)
+    expect(getResetMinutesRemaining({
+      ...driver,
+      status: 'on-break',
+      currentStatusMinutes: 30,
+    }, 120)).toBeNull()
   })
 
   it('distinguishes live, offline, and missing telemetry', () => {
