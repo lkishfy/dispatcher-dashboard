@@ -3,6 +3,8 @@ import { simulateFleetRefresh } from '../domain/fleetSimulation'
 import { buildDriverSummaries } from '../domain/hos'
 import type { FleetData } from '../types/fleet'
 
+const HOURLY_REFRESH_MS = 60 * 60 * 1000
+
 export function useFleetSnapshot(initialFleet: FleetData) {
   const [fleetSnapshot, setFleetSnapshot] = useState<FleetData>(() => initialFleet)
   const [lastRefreshedAt, setLastRefreshedAt] = useState(
@@ -10,12 +12,6 @@ export function useFleetSnapshot(initialFleet: FleetData) {
   )
   const [isRefreshing, setIsRefreshing] = useState(false)
   const refreshTimerRef = useRef<number | null>(null)
-
-  useEffect(() => () => {
-    if (refreshTimerRef.current !== null) {
-      window.clearTimeout(refreshTimerRef.current)
-    }
-  }, [])
 
   const refresh = useCallback(() => {
     if (refreshTimerRef.current !== null) {
@@ -33,6 +29,17 @@ export function useFleetSnapshot(initialFleet: FleetData) {
       refreshTimerRef.current = null
     }, 500)
   }, [])
+
+  useEffect(() => {
+    const intervalId = window.setInterval(refresh, HOURLY_REFRESH_MS)
+
+    return () => {
+      window.clearInterval(intervalId)
+      if (refreshTimerRef.current !== null) {
+        window.clearTimeout(refreshTimerRef.current)
+      }
+    }
+  }, [refresh])
 
   const summaries = useMemo(
     () => buildDriverSummaries(fleetSnapshot),

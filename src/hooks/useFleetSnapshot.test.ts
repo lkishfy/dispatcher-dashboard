@@ -47,4 +47,23 @@ describe('useFleetSnapshot', () => {
     expect(result.current.lastRefreshedAt).not.toBe(initialRefreshTime)
     expect(result.current.summaries).toHaveLength(fleet.drivers.length)
   })
+
+  it('automatically refreshes the fleet snapshot every hour', () => {
+    vi.useFakeTimers()
+    const { result } = renderHook(() => useFleetSnapshot(fleet))
+    const initialRefreshTime = result.current.lastRefreshedAt
+
+    act(() => {
+      vi.advanceTimersByTime(60 * 60 * 1000)
+    })
+    expect(result.current.isRefreshing).toBe(true)
+
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+
+    expect(result.current.isRefreshing).toBe(false)
+    expect(result.current.lastRefreshedAt).not.toBe(initialRefreshTime)
+    expect(result.current.summaries).toHaveLength(fleet.drivers.length)
+  })
 })
