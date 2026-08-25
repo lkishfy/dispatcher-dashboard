@@ -104,10 +104,10 @@ export function BatchReassignConfirmStep({
         <Check aria-hidden="true" size={20} />
       </span>
       <h3 className="mt-4 text-lg font-semibold text-hex-ink">
-        Stage {assignmentCount} reassignment{assignmentCount === 1 ? '' : 's'}?
+        Confirm {assignmentCount} reassignment{assignmentCount === 1 ? '' : 's'}?
       </h3>
       <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-hex-muted">
-        Loads will be prepared for dispatch confirmation. This prototype does not contact replacement drivers automatically.
+        These loads will be reassigned to the proposed replacement drivers. This prototype does not contact drivers automatically.
       </p>
       {unmatchedCount > 0 && (
         <p className="mx-auto mt-3 max-w-sm text-xs text-hex-muted">
@@ -151,7 +151,7 @@ export function BatchReassignFooter({
             Back
           </button>
           <button type="button" onClick={onConfirm} className="hex-btn-primary min-h-10">
-            Confirm & stage
+            Confirm reassignments
           </button>
         </>
       )}

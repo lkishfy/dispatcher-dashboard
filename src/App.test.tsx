@@ -36,6 +36,19 @@ describe('assembled dashboard', () => {
     expect(screen.getByRole('heading', { name: 'Alerts' })).toBeInTheDocument()
   })
 
+  it('opens the reassignment modal directly from an alert action', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /Open alerts sidebar/ }))
+    const sidebarPanel = document.getElementById('alerts-sidebar-panel')
+    if (!sidebarPanel) throw new Error('Alerts sidebar panel not found')
+    await user.click(within(sidebarPanel).getAllByRole('button', { name: 'Reassign' })[0])
+
+    expect(screen.getByRole('dialog')).toHaveAccessibleName('Reassign')
+    expect(screen.getByText('Step 1 of 2 · Review pairings')).toBeInTheDocument()
+  })
+
   it('has no detectable accessibility violations', async () => {
     const { container } = render(<App />)
 

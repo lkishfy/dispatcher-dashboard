@@ -49,6 +49,36 @@ export function useDashboardController(initialFleet: FleetData) {
     [dismissedVerificationIds, summaries],
   )
   const summariesById = useMemo(() => indexSummaries(summaries), [summaries])
+  const reassignmentStatuses = useMemo(() => {
+    const statuses: Record<string, {
+      phase: 'staged' | 'confirmed'
+      replacementName: string
+      replacementTruck: string
+    }> = {}
+
+    for (const [driverId, replacementId] of Object.entries(workflow.staged)) {
+      const replacement = summariesById.get(replacementId)
+      if (replacement) {
+        statuses[driverId] = {
+          phase: 'staged',
+          replacementName: replacement.driver.name,
+          replacementTruck: replacement.truck.unitNumber,
+        }
+      }
+    }
+    for (const [driverId, replacementId] of Object.entries(workflow.confirmed)) {
+      const replacement = summariesById.get(replacementId)
+      if (replacement) {
+        statuses[driverId] = {
+          phase: 'confirmed',
+          replacementName: replacement.driver.name,
+          replacementTruck: replacement.truck.unitNumber,
+        }
+      }
+    }
+
+    return statuses
+  }, [summariesById, workflow.confirmed, workflow.staged])
   const selectedSummary = selectedDriver
     ? summariesById.get(selectedDriver.id)
     : undefined
@@ -89,6 +119,11 @@ export function useDashboardController(initialFleet: FleetData) {
     setIsAlertsSidebarOpen(false)
     if (selectedDriver?.origin === 'alerts') closeSelectedDriver()
   }
+  const openAlertReassignment = (driverId: string) => {
+    workflow.setSelection([...workflow.selected], false)
+    workflow.setSelection([driverId], true)
+    setIsBatchModalOpen(true)
+  }
 
   const selectedDriverDetailProps = selectedSummary ? {
     summary: selectedSummary,
@@ -125,6 +160,7 @@ export function useDashboardController(initialFleet: FleetData) {
       violations,
       hosAlertDrivers,
       verificationDrivers,
+      reassignmentStatuses,
       onDismissViolation: (driverId: string) => {
         setDismissedViolationIds((current) => new Set(current).add(driverId))
       },
@@ -132,6 +168,7 @@ export function useDashboardController(initialFleet: FleetData) {
         setDismissedVerificationIds((current) => new Set(current).add(driverId))
       },
       onOpenDriver: (driverId: string) => setSelectedDriver({ id: driverId, origin: 'alerts' }),
+      onReassignDriver: openAlertReassignment,
       onExpand: () => setIsAlertsSidebarOpen(true),
       onCollapse: collapseAlerts,
     },
@@ -144,7 +181,7 @@ export function useDashboardController(initialFleet: FleetData) {
       selectedSummaries: batchSelectedSummaries,
       availableDrivers: reassignmentCandidates,
       onConfirm: (assignments: Record<string, string>) => {
-        workflow.stageBatch(assignments)
+        workflow.confirmBatch(assignments)
         setIsBatchModalOpen(false)
       },
       onClose: () => setIsBatchModalOpen(false),

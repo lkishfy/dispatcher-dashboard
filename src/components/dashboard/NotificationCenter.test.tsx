@@ -28,6 +28,7 @@ describe('NotificationCenter', () => {
         onDismissViolation={vi.fn()}
         onDismissVerification={vi.fn()}
         onOpenDriver={vi.fn()}
+        onReassignDriver={vi.fn()}
       />,
     )
 
@@ -57,6 +58,7 @@ describe('NotificationCenter', () => {
         onDismissViolation={vi.fn()}
         onDismissVerification={vi.fn()}
         onOpenDriver={vi.fn()}
+        onReassignDriver={vi.fn()}
       />,
     )
 
@@ -70,6 +72,7 @@ describe('NotificationCenter', () => {
   it('supports HOS drill-in, calling, and reassignment', async () => {
     const user = userEvent.setup()
     const onOpenDriver = vi.fn()
+    const onReassignDriver = vi.fn()
     render(
       <NotificationCenter
         violations={[]}
@@ -78,6 +81,7 @@ describe('NotificationCenter', () => {
         onDismissViolation={vi.fn()}
         onDismissVerification={vi.fn()}
         onOpenDriver={onOpenDriver}
+        onReassignDriver={onReassignDriver}
       />,
     )
 
@@ -87,8 +91,37 @@ describe('NotificationCenter', () => {
     expect(screen.getByRole('link', { name: 'Call Alex Rivera' }))
       .toHaveAttribute('href', 'tel:3125551001')
     await user.click(screen.getByRole('button', { name: 'Reassign' }))
-    expect(onOpenDriver).toHaveBeenCalledTimes(2)
-    expect(onOpenDriver).toHaveBeenLastCalledWith('a')
+    expect(onOpenDriver).toHaveBeenCalledTimes(1)
+    expect(onReassignDriver).toHaveBeenCalledWith('a')
+  })
+
+  it('shows staged reassignment details and routes review to driver details', async () => {
+    const user = userEvent.setup()
+    const onOpenDriver = vi.fn()
+    const onReassignDriver = vi.fn()
+    render(
+      <NotificationCenter
+        violations={[createViolation()]}
+        hosAlerts={[]}
+        verificationDrivers={[]}
+        reassignmentStatuses={{
+          a: {
+            phase: 'staged',
+            replacementName: 'Bea Stone',
+            replacementTruck: 'T-b',
+          },
+        }}
+        onDismissViolation={vi.fn()}
+        onDismissVerification={vi.fn()}
+        onOpenDriver={onOpenDriver}
+        onReassignDriver={onReassignDriver}
+      />,
+    )
+
+    expect(screen.getByText('Reassignment staged to Bea Stone · T-b')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Review & confirm' }))
+    expect(onOpenDriver).toHaveBeenCalledWith('a')
+    expect(onReassignDriver).not.toHaveBeenCalled()
   })
 
   it('confirms before dismissing a violation', async () => {
@@ -102,6 +135,7 @@ describe('NotificationCenter', () => {
         onDismissViolation={onDismissViolation}
         onDismissVerification={vi.fn()}
         onOpenDriver={vi.fn()}
+        onReassignDriver={vi.fn()}
       />,
     )
 
@@ -128,6 +162,7 @@ describe('NotificationCenter', () => {
         onDismissViolation={vi.fn()}
         onDismissVerification={onDismissVerification}
         onOpenDriver={vi.fn()}
+        onReassignDriver={vi.fn()}
       />,
     )
 

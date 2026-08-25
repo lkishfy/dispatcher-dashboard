@@ -52,4 +52,25 @@ describe('reassignment workflow reducer', () => {
     )
     expect(cleared.selected).toEqual(new Set(['existing']))
   })
+
+  it('confirms batch assignments directly from the modal flow', () => {
+    const confirmed = reassignmentReducer(
+      {
+        selected: new Set(['a', 'b']),
+        staged: { a: 'old-replacement' },
+        confirmed: {},
+      },
+      {
+        type: 'confirm-batch',
+        assignments: { a: 'replacement-a', b: 'replacement-b' },
+      },
+    )
+
+    expect(confirmed.selected).toEqual(new Set())
+    expect(confirmed.staged).toEqual({})
+    expect(confirmed.confirmed).toEqual({
+      a: 'replacement-a',
+      b: 'replacement-b',
+    })
+  })
 })

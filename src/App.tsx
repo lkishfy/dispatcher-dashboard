@@ -54,9 +54,11 @@ function App() {
           violations={dashboard.alerts.violations}
           hosAlerts={dashboard.alerts.hosAlertDrivers}
           verificationDrivers={dashboard.alerts.verificationDrivers}
+          reassignmentStatuses={dashboard.alerts.reassignmentStatuses}
           onDismissViolation={dashboard.alerts.onDismissViolation}
           onDismissVerification={dashboard.alerts.onDismissVerification}
           onOpenDriver={dashboard.alerts.onOpenDriver}
+          onReassignDriver={dashboard.alerts.onReassignDriver}
           nestedContent={dashboard.detail.props && dashboard.detail.selectedDriver?.origin === 'alerts' ? (
             <DriverDetailContent
               key={dashboard.detail.selectedDriver.id}

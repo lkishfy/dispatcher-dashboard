@@ -12,6 +12,12 @@ export interface NotificationItem {
   summary: DriverSummary
 }
 
+export interface NotificationReassignmentStatus {
+  phase: 'staged' | 'confirmed'
+  replacementName: string
+  replacementTruck: string
+}
+
 const kindStyles: Record<NotificationKind, {
   Icon: LucideIcon
   className: string
@@ -55,13 +61,17 @@ function getNotificationDetail(item: NotificationItem): string {
 
 interface NotificationListItemProps {
   item: NotificationItem
+  reassignmentStatus?: NotificationReassignmentStatus
   onOpenDriver: (driverId: string) => void
+  onReassignDriver: (driverId: string) => void
   onDismiss: (item: NotificationItem) => void
 }
 
 export function NotificationListItem({
   item,
+  reassignmentStatus,
   onOpenDriver,
+  onReassignDriver,
   onDismiss,
 }: NotificationListItemProps) {
   const { summary } = item
@@ -87,17 +97,35 @@ export function NotificationListItem({
           <p className="mt-0.5 text-xs leading-relaxed text-hex-muted">
             {getNotificationDetail(item)}
           </p>
+          {reassignmentStatus && (
+            <p className={`mt-2 text-xs font-medium ${
+              reassignmentStatus.phase === 'confirmed'
+                ? 'text-success-text'
+                : 'text-warning-text'
+            }`}>
+              {reassignmentStatus.phase === 'confirmed' ? 'Reassigned' : 'Reassignment staged'} to{' '}
+              {reassignmentStatus.replacementName} · {reassignmentStatus.replacementTruck}
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap gap-2">
             <DriverContactAction summary={summary} size="compact" className="min-w-20" />
             {item.kind !== 'verification' && (
-              <button
-                type="button"
-                onClick={() => onOpenDriver(summary.driver.id)}
-                disabled={!summary.route}
-                className="hex-btn-secondary hex-btn-sm min-w-20"
-              >
-                Reassign
-              </button>
+              reassignmentStatus?.phase === 'confirmed' ? (
+                <span className="inline-flex min-h-8 items-center border border-success-border bg-success-surface px-3 text-xs font-semibold text-success-text">
+                  Reassigned
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => reassignmentStatus
+                    ? onOpenDriver(summary.driver.id)
+                    : onReassignDriver(summary.driver.id)}
+                  disabled={!summary.route}
+                  className="hex-btn-secondary hex-btn-sm min-w-20"
+                >
+                  {reassignmentStatus ? 'Review & confirm' : 'Reassign'}
+                </button>
+              )
             )}
           </div>
         </div>

@@ -9,6 +9,7 @@ import {
 import {
   NotificationListItem,
   type NotificationItem,
+  type NotificationReassignmentStatus,
 } from './NotificationListItem'
 
 export interface NotificationCenterProps {
@@ -18,6 +19,8 @@ export interface NotificationCenterProps {
   onDismissViolation: (driverId: string) => void
   onDismissVerification: (driverId: string) => void
   onOpenDriver: (driverId: string) => void
+  onReassignDriver: (driverId: string) => void
+  reassignmentStatuses?: Record<string, NotificationReassignmentStatus>
   headerAction?: ReactNode
   className?: string
 }
@@ -36,6 +39,8 @@ export function NotificationCenter({
   onDismissViolation,
   onDismissVerification,
   onOpenDriver,
+  onReassignDriver,
+  reassignmentStatuses = {},
   headerAction,
   className = '',
 }: NotificationCenterProps) {
@@ -121,7 +126,9 @@ export function NotificationCenter({
               <NotificationListItem
                 key={item.id}
                 item={item}
+                reassignmentStatus={reassignmentStatuses[item.summary.driver.id]}
                 onOpenDriver={onOpenDriver}
+                onReassignDriver={onReassignDriver}
                 onDismiss={(dismissedItem) => {
                   if (dismissedItem.kind === 'violation') {
                     setPendingDismissal(dismissedItem.summary)

@@ -11,6 +11,7 @@ type WorkflowAction =
   | { type: 'set-selection'; driverIds: string[]; selected: boolean }
   | { type: 'stage'; fromDriverId: string; toDriverId: string }
   | { type: 'stage-batch'; assignments: Record<string, string> }
+  | { type: 'confirm-batch'; assignments: Record<string, string> }
   | { type: 'confirm'; fromDriverId: string }
   | { type: 'undo'; fromDriverId: string }
 
@@ -67,6 +68,20 @@ export function reassignmentReducer(
       confirmed,
     }
   }
+  if (action.type === 'confirm-batch') {
+    const assignments = validAssignments(action.assignments)
+    const selected = new Set(state.selected)
+    const staged = { ...state.staged }
+    for (const sourceId of Object.keys(assignments)) {
+      selected.delete(sourceId)
+      delete staged[sourceId]
+    }
+    return {
+      selected,
+      staged,
+      confirmed: { ...state.confirmed, ...assignments },
+    }
+  }
   if (action.type === 'confirm') {
     const replacementId = state.staged[action.fromDriverId]
     if (!replacementId) return state
@@ -103,6 +118,9 @@ export function useReassignmentWorkflow() {
   const stageBatch = (assignments: Record<string, string>) => {
     dispatch({ type: 'stage-batch', assignments })
   }
+  const confirmBatch = (assignments: Record<string, string>) => {
+    dispatch({ type: 'confirm-batch', assignments })
+  }
   const confirm = (fromDriverId: string) => {
     dispatch({ type: 'confirm', fromDriverId })
   }
@@ -116,6 +134,7 @@ export function useReassignmentWorkflow() {
     setSelection,
     stage,
     stageBatch,
+    confirmBatch,
     confirm,
     undo,
   }
