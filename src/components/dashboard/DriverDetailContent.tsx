@@ -30,8 +30,6 @@ export function DriverDetailContent({
       <DriverDetailHeader summary={summary} onClose={onClose} />
       <div className="space-y-4 p-4 sm:space-y-5 sm:p-5 lg:p-7">
         <DriverGuidanceBanner summary={summary} />
-        <HosSection summary={summary} />
-        <LoadSection summary={summary} />
         <ReassignmentSection
           summary={summary}
           candidates={reassignment.candidates}
@@ -41,6 +39,8 @@ export function DriverDetailContent({
           onConfirm={reassignment.onConfirm}
           onUndo={reassignment.onUndo}
         />
+        <HosSection summary={summary} />
+        <LoadSection summary={summary} />
       </div>
     </div>
   )
